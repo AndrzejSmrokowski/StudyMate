@@ -1,4 +1,4 @@
 package com.studymate.domain.testingmodule;
 
-public class TestingModule {
+public class TestingModuleFacade {
 }
