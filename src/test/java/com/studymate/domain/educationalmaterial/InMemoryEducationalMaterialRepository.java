@@ -12,7 +12,7 @@ public class InMemoryEducationalMaterialRepository implements EducationalMateria
 
     @Override
     public List<EducationalMaterial> findAll() {
-        return null;
+        return database.values().stream().toList();
     }
 
     @Override

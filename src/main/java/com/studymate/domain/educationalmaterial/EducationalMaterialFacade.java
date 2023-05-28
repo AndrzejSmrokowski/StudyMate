@@ -19,7 +19,7 @@ public class EducationalMaterialFacade {
     }
 
     public void updateEducationalMaterial(String materialId, EducationalMaterialData materialData) {
-
+        educationalMaterialService.updateEducationalMaterial(materialId, materialData);
     }
 
     public EducationalMaterial getMaterialById(String materialId) {

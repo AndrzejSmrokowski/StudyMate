@@ -1,5 +1,6 @@
 package com.studymate.domain.educationalmaterial;
 
+import com.studymate.domain.educationalmaterial.dto.EducationalMaterialData;
 import lombok.AllArgsConstructor;
 
 import java.util.List;
@@ -24,4 +25,17 @@ public class EducationalMaterialService {
     }
 
 
+    public void updateEducationalMaterial(String materialId, EducationalMaterialData materialData) {
+        EducationalMaterial existingMaterial = educationalMaterialRepository.getMaterialById(materialId)
+                .orElseThrow(() -> new MaterialNotFoundException("Educational material not found"));
+
+        EducationalMaterial updatedMaterial = new EducationalMaterial(
+                existingMaterial.id(),
+                materialData.title(),
+                materialData.description(),
+                materialData.content()
+        );
+
+        educationalMaterialRepository.save(updatedMaterial);
+    }
 }
