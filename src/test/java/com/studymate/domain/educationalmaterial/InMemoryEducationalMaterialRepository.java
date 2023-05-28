@@ -17,14 +17,21 @@ public class InMemoryEducationalMaterialRepository implements EducationalMateria
 
     @Override
     public EducationalMaterial save(EducationalMaterial educationalMaterial) {
-        UUID id = UUID.randomUUID();
+        String id;
+        if (database.values().stream().anyMatch(material -> material.id().equals(educationalMaterial.id()))) {
+            id = educationalMaterial.id();
+        } else {
+            id = UUID.randomUUID().toString();
+        }
+
          EducationalMaterial savedEducationalMaterial = new EducationalMaterial(
-                 id.toString(),
+                 id,
                  educationalMaterial.title(),
                  educationalMaterial.description(),
                  educationalMaterial.content()
          );
-         database.put(id.toString(), savedEducationalMaterial);
+
+         database.put(id, savedEducationalMaterial);
         return savedEducationalMaterial;
     }
 
