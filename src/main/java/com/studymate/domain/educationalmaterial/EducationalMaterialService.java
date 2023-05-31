@@ -29,13 +29,30 @@ public class EducationalMaterialService {
         EducationalMaterial existingMaterial = educationalMaterialRepository.getMaterialById(materialId)
                 .orElseThrow(() -> new MaterialNotFoundException("Educational material not found"));
 
-        EducationalMaterial updatedMaterial = new EducationalMaterial(
-                existingMaterial.id(),
-                materialData.title(),
-                materialData.description(),
-                materialData.content()
-        );
+        EducationalMaterial updatedMaterial = EducationalMaterial.builder()
+                .id(existingMaterial.id())
+                .title(materialData.title())
+                .description(materialData.description())
+                .content(materialData.content())
+                .comments(existingMaterial.comments())
+                .status(existingMaterial.status())
+                .likes(existingMaterial.likes())
+                .build();
 
+        educationalMaterialRepository.save(updatedMaterial);
+    }
+    public void updateEducationalMaterial(String materialId, EducationalMaterial material) {
+        EducationalMaterial existingMaterial = educationalMaterialRepository.getMaterialById(materialId)
+                .orElseThrow(() -> new MaterialNotFoundException("Educational material not found"));
+        EducationalMaterial updatedMaterial = EducationalMaterial.builder()
+                .id(existingMaterial.id())
+                .title(material.title())
+                .description(material.description())
+                .content(material.content())
+                .comments(material.comments())
+                .status(material.status())
+                .likes(material.likes())
+                .build();
         educationalMaterialRepository.save(updatedMaterial);
     }
 }

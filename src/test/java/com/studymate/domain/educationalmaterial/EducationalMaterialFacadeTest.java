@@ -1,14 +1,19 @@
 package com.studymate.domain.educationalmaterial;
 
+import com.studymate.domain.educationalmaterial.dto.CommentData;
 import com.studymate.domain.educationalmaterial.dto.EducationalMaterialData;
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
 class EducationalMaterialFacadeTest {
-    private final EducationalMaterialFacade educationalMaterialFacade = new EducationalMaterialFacade(new EducationalMaterialService(new InMemoryEducationalMaterialRepository()));
+
+    private final EducationalMaterialService educationalMaterialService = new EducationalMaterialService(new InMemoryEducationalMaterialRepository());
+    private final EducationalMaterialFacade educationalMaterialFacade = new EducationalMaterialFacade(educationalMaterialService, new MaterialLikeManager(educationalMaterialService));
 
     @Test
     void shouldCreateAndGetEducationalMaterial() {
@@ -61,6 +66,81 @@ class EducationalMaterialFacadeTest {
 
         // then
         assertThat(educationalMaterialFacade.getEducationalMaterials()).hasSize(4);
+
+    }
+
+    @Test
+    void shouldThrowMaterialNotFoundExceptionWhenEducationalMaterialDontExist() {
+        // given && when
+        Throwable thrown = catchThrowable(() -> educationalMaterialFacade.getMaterialById("100"));
+        // then
+        AssertionsForClassTypes.assertThat(thrown)
+                .isInstanceOf(MaterialNotFoundException.class)
+                .hasMessage("Educational material not found");
+        
+    }
+
+    @Test
+    void shouldAddCommentsToEducationalMaterialAndGetComments() {
+        // given
+        EducationalMaterialData materialData = new EducationalMaterialData("Tytuł1", "Opis1", "Treść1");
+        EducationalMaterial educationalMaterial = educationalMaterialFacade.createEducationalMaterial(materialData);
+        CommentData commentData1 = new CommentData("Bardzo fajny materiał", "Przemek");
+        CommentData commentData2 = new CommentData("Bardzo fajny materiał", "Przemek");
+        // when
+        educationalMaterialFacade.addMaterialComment(educationalMaterial.id(), commentData1);
+        educationalMaterialFacade.addMaterialComment(educationalMaterial.id(), commentData2);
+        // then
+        assertThat(educationalMaterialFacade.getMaterialComments(educationalMaterial.id())).hasSize(2);
+
+    }
+
+    @Test
+    void shouldApproveEducationalMaterial() {
+        // given
+        EducationalMaterialData materialData = new EducationalMaterialData("Tytuł", "Opis", "Treść");
+        EducationalMaterial educationalMaterial = educationalMaterialFacade.createEducationalMaterial(materialData);
+        // when
+        educationalMaterialFacade.approveMaterial(educationalMaterial.id());
+        // then
+        assertThat(educationalMaterialFacade.getMaterialById(educationalMaterial.id()).status()).isEqualTo(MaterialStatus.APPROVED);
+
+    }
+
+    @Test
+    void shouldRejectEducationalMaterial() {
+        // given
+        EducationalMaterialData materialData = new EducationalMaterialData("Tytuł", "Opis", "Treść");
+        EducationalMaterial educationalMaterial = educationalMaterialFacade.createEducationalMaterial(materialData);
+        // when
+        educationalMaterialFacade.rejectMaterial(educationalMaterial.id());
+        // then
+        assertThat(educationalMaterialFacade.getMaterialById(educationalMaterial.id()).status()).isEqualTo(MaterialStatus.REJECTED);
+
+    }
+
+    @Test
+    void shouldAddLikeToEducationalMaterialLikesCount() {
+        // given
+        EducationalMaterialData materialData = new EducationalMaterialData("Tytuł", "Opis", "Treść");
+        EducationalMaterial educationalMaterial = educationalMaterialFacade.createEducationalMaterial(materialData);
+        // when
+        educationalMaterialFacade.likeMaterial(educationalMaterial.id());
+        // then
+        assertThat(educationalMaterialFacade.getMaterialById(educationalMaterial.id()).likes()).isEqualTo(1);
+
+    }
+
+    @Test
+    void shouldUnlikeToEducationalMaterial() {
+        // given
+        EducationalMaterialData materialData = new EducationalMaterialData("Tytuł", "Opis", "Treść");
+        EducationalMaterial educationalMaterial = educationalMaterialFacade.createEducationalMaterial(materialData);
+        // when
+        educationalMaterialFacade.likeMaterial(educationalMaterial.id());
+        educationalMaterialFacade.unlikeMaterial(educationalMaterial.id());
+        // then
+        assertThat(educationalMaterialFacade.getMaterialById(educationalMaterial.id()).likes()).isEqualTo(0);
 
     }
 }

@@ -1,5 +1,6 @@
 package com.studymate.domain.educationalmaterial;
 
+import com.studymate.domain.educationalmaterial.dto.CommentData;
 import com.studymate.domain.educationalmaterial.dto.EducationalMaterialData;
 import lombok.AllArgsConstructor;
 
@@ -8,6 +9,7 @@ import java.util.List;
 public class EducationalMaterialFacade {
 
     private final EducationalMaterialService educationalMaterialService;
+    private final MaterialLikeManager materialLikeManager;
 
     public List<EducationalMaterial> getEducationalMaterials() {
         return educationalMaterialService.getEducationalMaterials();
@@ -24,5 +26,35 @@ public class EducationalMaterialFacade {
 
     public EducationalMaterial getMaterialById(String materialId) {
         return educationalMaterialService.getMaterialById(materialId);
+    }
+
+    public void approveMaterial(String materialId) {
+        EducationalMaterial material = educationalMaterialService.getMaterialById(materialId);
+        EducationalMaterial approvedMaterial = EducationalMaterialMapper.mapToApprovedEducationalMaterial(material);
+        educationalMaterialService.updateEducationalMaterial(materialId, approvedMaterial);
+    }
+
+    public void rejectMaterial(String materialId) {
+        EducationalMaterial material = educationalMaterialService.getMaterialById(materialId);
+        EducationalMaterial rejectedMaterial = EducationalMaterialMapper.mapToRejectedEducationalMaterial(material);
+        educationalMaterialService.updateEducationalMaterial(materialId, rejectedMaterial);
+    }
+
+    public List<Comment> getMaterialComments(String materialId) {
+        EducationalMaterial material = educationalMaterialService.getMaterialById(materialId);
+        return material.comments();
+    }
+    public void addMaterialComment(String materialId, CommentData commentData) {
+        EducationalMaterial material = educationalMaterialService.getMaterialById(materialId);
+        material.addComment(CommentMapper.mapToComment(commentData));
+        educationalMaterialService.updateEducationalMaterial(materialId, material);
+    }
+
+    public void likeMaterial(String materialId) {
+        materialLikeManager.likeMaterial(materialId);
+    }
+
+    public void unlikeMaterial(String materialId) {
+        materialLikeManager.unlikeMaterial(materialId);
     }
 }

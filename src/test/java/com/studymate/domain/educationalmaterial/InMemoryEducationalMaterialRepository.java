@@ -1,9 +1,6 @@
 package com.studymate.domain.educationalmaterial;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryEducationalMaterialRepository implements EducationalMaterialRepository{
@@ -24,12 +21,15 @@ public class InMemoryEducationalMaterialRepository implements EducationalMateria
             id = UUID.randomUUID().toString();
         }
 
-         EducationalMaterial savedEducationalMaterial = new EducationalMaterial(
-                 id,
-                 educationalMaterial.title(),
-                 educationalMaterial.description(),
-                 educationalMaterial.content()
-         );
+         EducationalMaterial savedEducationalMaterial = EducationalMaterial.builder()
+                 .id(id)
+                 .title(educationalMaterial.title())
+                 .description(educationalMaterial.description())
+                 .content(educationalMaterial.content())
+                 .comments(educationalMaterial.comments())
+                 .status(educationalMaterial.status())
+                 .likes(educationalMaterial.likes())
+                 .build();
 
          database.put(id, savedEducationalMaterial);
         return savedEducationalMaterial;
