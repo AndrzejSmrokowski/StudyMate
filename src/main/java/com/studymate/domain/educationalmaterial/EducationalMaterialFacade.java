@@ -29,23 +29,23 @@ public class EducationalMaterialFacade {
     }
 
     public void approveMaterial(String materialId) {
-        EducationalMaterial material = educationalMaterialService.getMaterialById(materialId);
+        EducationalMaterial material = getMaterialById(materialId);
         EducationalMaterial approvedMaterial = EducationalMaterialMapper.mapToApprovedEducationalMaterial(material);
         educationalMaterialService.updateEducationalMaterial(materialId, approvedMaterial);
     }
 
     public void rejectMaterial(String materialId) {
-        EducationalMaterial material = educationalMaterialService.getMaterialById(materialId);
+        EducationalMaterial material = getMaterialById(materialId);
         EducationalMaterial rejectedMaterial = EducationalMaterialMapper.mapToRejectedEducationalMaterial(material);
         educationalMaterialService.updateEducationalMaterial(materialId, rejectedMaterial);
     }
 
     public List<Comment> getMaterialComments(String materialId) {
-        EducationalMaterial material = educationalMaterialService.getMaterialById(materialId);
+        EducationalMaterial material = getMaterialById(materialId);
         return material.comments();
     }
     public void addMaterialComment(String materialId, CommentData commentData) {
-        EducationalMaterial material = educationalMaterialService.getMaterialById(materialId);
+        EducationalMaterial material = getMaterialById(materialId);
         material.addComment(CommentMapper.mapToComment(commentData));
         educationalMaterialService.updateEducationalMaterial(materialId, material);
     }
