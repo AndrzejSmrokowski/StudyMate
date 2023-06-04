@@ -24,7 +24,7 @@ public class MaterialLikeManager {
     public void unlikeMaterial(String materialId) {
         EducationalMaterial material = educationalMaterialService.getMaterialById(materialId);
         int likes  = material.likes() - 1;
-        EducationalMaterial likedMaterial = EducationalMaterial.builder()
+        EducationalMaterial unlikedMaterial = EducationalMaterial.builder()
                 .title(material.title())
                 .content(material.content())
                 .description(material.description())
@@ -32,6 +32,6 @@ public class MaterialLikeManager {
                 .status(material.status())
                 .likes(likes)
                 .build();
-        educationalMaterialService.updateEducationalMaterial(materialId, likedMaterial);
+        educationalMaterialService.updateEducationalMaterial(materialId, unlikedMaterial);
     }
 }
