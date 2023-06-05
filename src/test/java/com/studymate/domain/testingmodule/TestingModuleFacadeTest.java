@@ -1,10 +1,13 @@
 package com.studymate.domain.testingmodule;
 
+import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 
 class TestingModuleFacadeTest {
@@ -59,5 +62,60 @@ class TestingModuleFacadeTest {
         assertThat(resultList).hasSize(1);
     }
 
+    @Test
+    void shouldReturnListOfQuestionsByTestId() {
+        // given
+        Exam exam = testingModuleFacade.createTest(dataProvider.testDataForTest());
+        // when
+        List<Question> questions = testingModuleFacade.getTestQuestions(exam.examId());
+        // then
+        assertThat(questions).hasSize(3);
+
+    }
+
+    @Test
+    void shouldReturnQuestionById() {
+        // given
+        Exam exam = testingModuleFacade.createTest(dataProvider.testDataForTest());
+        String testId = exam.examId();
+        List<Question> questions = testingModuleFacade.getTestQuestions(testId);
+        String questionId = questions.get(0).questionId();
+
+        // when
+        Question question = testingModuleFacade.getQuestionById(testId, questionId);
+
+        // then
+        assertAll(() -> assertThat(question).isNotNull(),
+                  () -> assertThat(question.questionId()).isEqualTo("id1"));
+    }
+
+    @Test
+    void shouldThrowTestNotFoundExceptionWhenTestNotFound() {
+        // given
+        String testId = "testerinio1";
+
+        //when
+        Throwable thrown = catchThrowable(() -> testingModuleFacade.getTestById(testId));
+
+        // then
+        AssertionsForClassTypes.assertThat(thrown)
+                .isInstanceOf(TestNotFoundException.class)
+                .hasMessage("Test not found with ID: " + testId);
+        
+    }
+    @Test
+    void shouldThrowResultsNotFoundExceptionWhenThereAreNoResults() {
+        // given
+        Exam exam = testingModuleFacade.createTest(dataProvider.testDataForTest());
+
+        //when
+        Throwable thrown = catchThrowable(() -> testingModuleFacade.getTestResults(exam.examId()));
+
+        // then
+        AssertionsForClassTypes.assertThat(thrown)
+                .isInstanceOf(ResultsNotFoundException.class)
+                .hasMessage("Result not found for test id: " + exam.examId());
+
+    }
 
 }

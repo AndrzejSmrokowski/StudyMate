@@ -28,4 +28,19 @@ public class TestingModuleFacade {
     public List<TestResult> getTestResults(String testId) {
         return testService.getTestResults(testId);
     }
+
+    public List<Question> getTestQuestions(String testId) {
+        Exam exam = getTestById(testId);
+        return exam.questions();
+    }
+
+    public Question getQuestionById(String testId, String questionId) {
+        List<Question> questions = getTestQuestions(testId);
+        return questions.stream()
+                .filter(question -> question.questionId().equals(questionId))
+                .findFirst()
+                .orElse(null);
+    }
+
+
 }
