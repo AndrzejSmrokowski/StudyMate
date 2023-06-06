@@ -5,6 +5,7 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder
+public
 record EducationalMaterial(
         String id,
         String title,
