@@ -41,7 +41,6 @@ public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegration
 
 //Step 2: User sends a POST request to /api/users/login with login credentials (i.e., username or email, password), and the system authenticates the user and returns a JWT token.
         // given & when
-        // given & when
         ResultActions successLoginRequest = mockMvc.perform(post("/api/users/login")
                 .content("""
                         {

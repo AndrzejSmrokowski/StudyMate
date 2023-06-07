@@ -3,6 +3,7 @@ package com.studymate.domain.educationalmaterial;
 import lombok.Builder;
 
 import java.util.List;
+import java.util.Set;
 
 @Builder
 public
@@ -13,7 +14,8 @@ record EducationalMaterial(
         String content,
         List<Comment> comments,
         MaterialStatus status,
-        int likes
+        int likes,
+        Set<String> likedBy
 ) {
     public void addComment(Comment comment) {
         comments.add(comment);

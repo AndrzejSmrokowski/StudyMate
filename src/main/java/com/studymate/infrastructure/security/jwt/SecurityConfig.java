@@ -46,6 +46,7 @@ public class SecurityConfig {
                 .antMatchers("/api/users/login/**").permitAll()
                 .antMatchers("/api/users/register/**").permitAll()
                 .antMatchers("/swagger-resources/**").permitAll()
+                .antMatchers("/educational-content/**").authenticated()
                 .anyRequest().authenticated()
                 .and()
                 .headers().frameOptions().disable()
