@@ -2,6 +2,9 @@ spring:
   data:
     mongodb:
       uri: mongodb://username:password@localhost:27017/studymate
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
 
 studymate:
   http:
@@ -11,3 +14,8 @@ studymate:
         port: 5057
         readTimeout: 1000
         uri: http://localhost
+auth:
+  jwt:
+    expirationDays: 30
+    secret: ${JWT_SECRET}
+    issuer: job-offers-backend
