@@ -7,7 +7,6 @@ public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegration
     @Test
     public void userLearnFromEducationalMaterialThenSolvesTestAndWantsToSeeHisProgress() {
 //Step 1: User sends a POST request to /api/users/register with registration data such as username, email address, password, and the system registers a new user.
-
 //Step 2: User sends a POST request to /api/users/login with login credentials (i.e., username or email, password), and the system authenticates the user and returns a JWT token.
 //Step 3: User sends a GET request to /api/users/{userId}, where {userId} is the user identifier, and the system returns the respective user data.
 //Step 4: User sends a GET request to /api/educational-content, and the system returns a list of all available educational materials.

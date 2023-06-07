@@ -1,4 +1,13 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://admin:admin@localhost:27017/offers
+      uri: mongodb://username:password@localhost:27017/studymate
+
+studymate:
+  http:
+    client:
+      config:
+        connectionTimeout: 1000
+        port: 5057
+        readTimeout: 1000
+        uri: http://localhost

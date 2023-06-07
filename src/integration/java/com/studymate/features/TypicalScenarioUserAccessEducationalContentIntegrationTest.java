@@ -1,13 +1,23 @@
 package com.studymate.features;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.studymate.BaseIntegrationTest;
-import org.junit.Test;
+import com.studymate.SampleEducationalMaterialResponse;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
 
-public class TypicalScenarioUserAccessEducationalContentIntegrationTest extends BaseIntegrationTest {
+
+public class TypicalScenarioUserAccessEducationalContentIntegrationTest extends BaseIntegrationTest implements SampleEducationalMaterialResponse {
 
     @Test
     public void userWantsToSeeEducationalContentButHasToBeLoggedInAndExternalServerShouldHaveSomeContent(){
         // step 1: there is no educational content in the database
+        // given && when && then
+        wireMockServer.stubFor(WireMock.get("/educational-content")
+                .willReturn(WireMock.aResponse()
+                        .withStatus(HttpStatus.OK.value())
+                        .withHeader("Content-Type", "application/json")
+                        .withBody(bodyWithZeroEducationalMaterialsJson())));
         // step 2: user tries to retrieve JWT token by making a POST request to /token with username=someUser, password=somePassword and system returns UNAUTHORIZED(401)
         // step 3: user makes a GET request to /educational-content without JWT token and system returns UNAUTHORIZED(401)
         // step 4: user makes a POST request to /register with username=someUser, password=somePassword and system registers user and returns OK(200)

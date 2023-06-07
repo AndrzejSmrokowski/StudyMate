@@ -1,12 +1,9 @@
 package com.studymate.domain.educationalmaterial;
 
-import java.util.List;
-import java.util.Optional;
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
 
-public interface EducationalMaterialRepository {
-    List<EducationalMaterial> findAll();
+@Repository
+public interface EducationalMaterialRepository extends MongoRepository<EducationalMaterial, String> {
 
-    EducationalMaterial save(EducationalMaterial educationalMaterial);
-
-    Optional<EducationalMaterial> getMaterialById(String materialId);
 }
