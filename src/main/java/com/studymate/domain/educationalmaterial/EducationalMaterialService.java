@@ -20,13 +20,13 @@ public class EducationalMaterialService {
     }
 
     public EducationalMaterial getMaterialById(String materialId) {
-        return educationalMaterialRepository.getMaterialById(materialId)
+        return educationalMaterialRepository.findById(materialId)
                 .orElseThrow(() -> new MaterialNotFoundException("Educational material not found"));
     }
 
 
     public void updateEducationalMaterial(String materialId, EducationalMaterialData materialData) {
-        EducationalMaterial existingMaterial = educationalMaterialRepository.getMaterialById(materialId)
+        EducationalMaterial existingMaterial = educationalMaterialRepository.findById(materialId)
                 .orElseThrow(() -> new MaterialNotFoundException("Educational material not found"));
 
         EducationalMaterial updatedMaterial = EducationalMaterial.builder()
@@ -42,7 +42,7 @@ public class EducationalMaterialService {
         educationalMaterialRepository.save(updatedMaterial);
     }
     public void updateEducationalMaterial(String materialId, EducationalMaterial material) {
-        EducationalMaterial existingMaterial = educationalMaterialRepository.getMaterialById(materialId)
+        EducationalMaterial existingMaterial = educationalMaterialRepository.findById(materialId)
                 .orElseThrow(() -> new MaterialNotFoundException("Educational material not found"));
         EducationalMaterial updatedMaterial = EducationalMaterial.builder()
                 .id(existingMaterial.id())
