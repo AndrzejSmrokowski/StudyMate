@@ -1,6 +1,6 @@
 package com.studymate.domain.user.dto;
 
-public record RegisterData(
+public record RegisterUserDto(
         String username,
         String password
 ) {

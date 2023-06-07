@@ -1,40 +1,45 @@
 package com.studymate.domain.user;
 
-import com.studymate.domain.user.dto.RegisterData;
+import com.studymate.domain.user.dto.RegisterUserDto;
+import com.studymate.domain.user.dto.RegistrationResultDto;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
 class UserManagementFacadeTest {
-    private final UserManagementFacade userManagementFacade = new UserManagementFacade(new InMemoryUserRepository());
+    private final UserManagementFacade userManagementFacade = new UserManagementFacade(new InMemoryUserRepository(),new BCryptPasswordEncoder());
 
     @Test
     void shouldRegisterUser() {
         // given
-        RegisterData registerData = new RegisterData("username", "passworderinio123");
+        RegisterUserDto registerUserDto = new RegisterUserDto("username", "passworderinio123");
 
         // when
-        User user = userManagementFacade.registerUser(registerData);
+        RegistrationResultDto registrationResult = userManagementFacade.registerUser(registerUserDto);
+
 
         // then
-        assertThat(user.username()).isEqualTo("username");
+        assertThat(registrationResult.username()).isEqualTo("username");
 
     }
 
     @Test
     void shouldFindUserByUsername() {
         // given
-        RegisterData registerData = new RegisterData("username", "passworderinio123");
-        User user = userManagementFacade.registerUser(registerData);
+        String username = "username";
+        RegisterUserDto registerUserDto = new RegisterUserDto(username, "passworderinio123");
+        RegistrationResultDto registrationResult = userManagementFacade.registerUser(registerUserDto);
 
         // when
-        User foundUser = userManagementFacade.findUserByUsername(user.username());
+        User foundUser = userManagementFacade.findUserByUsername(registrationResult.username());
 
         //then
-        assertThat(foundUser.username()).isEqualTo(user.username());
+        assertThat(foundUser.username()).isEqualTo(username);
 
     }
 
@@ -48,7 +53,7 @@ class UserManagementFacadeTest {
 
         // then
         AssertionsForClassTypes.assertThat(thrown)
-                .isInstanceOf(UserNotFoundException.class)
+                .isInstanceOf(BadCredentialsException.class)
                 .hasMessage("User with the given username not found: " + username);
 
     }
@@ -56,12 +61,12 @@ class UserManagementFacadeTest {
     @Test
     void shouldThrowExceptionWhenUserAlreadyExistAndCantRegisterUser() {
         // given
-        RegisterData registerData = new RegisterData("username", "passworderinio123");
-        userManagementFacade.registerUser(registerData);
-        RegisterData registerDataWithTheSameUsername = new RegisterData("username", "password");
+        RegisterUserDto registerUserDto = new RegisterUserDto("username", "passworderinio123");
+        userManagementFacade.registerUser(registerUserDto);
+        RegisterUserDto registerUserDtoWithTheSameUsername = new RegisterUserDto("username", "password");
 
         // when
-        Throwable thrown = catchThrowable(() -> userManagementFacade.registerUser(registerDataWithTheSameUsername));
+        Throwable thrown = catchThrowable(() -> userManagementFacade.registerUser(registerUserDtoWithTheSameUsername));
         // then
         AssertionsForClassTypes.assertThat(thrown)
                 .isInstanceOf(UserAlreadyExistsException.class)

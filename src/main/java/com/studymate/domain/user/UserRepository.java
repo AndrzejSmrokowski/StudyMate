@@ -1,6 +1,5 @@
 package com.studymate.domain.user;
 
-import com.studymate.domain.educationalmaterial.EducationalMaterial;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

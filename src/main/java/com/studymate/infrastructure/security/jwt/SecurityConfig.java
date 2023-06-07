@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+
 @Configuration
 @AllArgsConstructor
 public class SecurityConfig {
@@ -42,8 +43,8 @@ public class SecurityConfig {
                 .antMatchers("/swagger-ui/**").permitAll()
                 .antMatchers("/v3/api-docs").permitAll()
                 .antMatchers("/webjars/**").permitAll()
-                .antMatchers("/token/**").permitAll()
-                .antMatchers("/register/**").permitAll()
+                .antMatchers("/api/users/login/**").permitAll()
+                .antMatchers("/api/users/register/**").permitAll()
                 .antMatchers("/swagger-resources/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
