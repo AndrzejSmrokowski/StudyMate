@@ -2,9 +2,11 @@ package com.studymate.domain.user;
 
 import com.studymate.domain.user.dto.RegisterData;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 @AllArgsConstructor
+@Component
 public class UserManagementFacade {
     private final UserRepository userRepository;
 
