@@ -71,12 +71,14 @@ class EducationalMaterialFacadeTest {
 
     @Test
     void shouldThrowMaterialNotFoundExceptionWhenEducationalMaterialDontExist() {
-        // given && when
-        Throwable thrown = catchThrowable(() -> educationalMaterialFacade.getMaterialById("100"));
+        // given
+        String materialId = "100";
+        // when
+        Throwable thrown = catchThrowable(() -> educationalMaterialFacade.getMaterialById(materialId));
         // then
         AssertionsForClassTypes.assertThat(thrown)
                 .isInstanceOf(MaterialNotFoundException.class)
-                .hasMessage("Educational material not found");
+                .hasMessage(String.format("Content with id %s not found", materialId));
         
     }
 
@@ -125,7 +127,7 @@ class EducationalMaterialFacadeTest {
         EducationalMaterialData materialData = new EducationalMaterialData("Tytuł", "Opis", "Treść");
         EducationalMaterial educationalMaterial = educationalMaterialFacade.createEducationalMaterial(materialData);
         // when
-        educationalMaterialFacade.likeMaterial(educationalMaterial.id());
+        educationalMaterialFacade.likeMaterial(educationalMaterial.id(), "username");
         // then
         assertThat(educationalMaterialFacade.getMaterialById(educationalMaterial.id()).likes()).isEqualTo(1);
 
@@ -137,10 +139,28 @@ class EducationalMaterialFacadeTest {
         EducationalMaterialData materialData = new EducationalMaterialData("Tytuł", "Opis", "Treść");
         EducationalMaterial educationalMaterial = educationalMaterialFacade.createEducationalMaterial(materialData);
         // when
-        educationalMaterialFacade.likeMaterial(educationalMaterial.id());
-        educationalMaterialFacade.unlikeMaterial(educationalMaterial.id());
+        educationalMaterialFacade.likeMaterial(educationalMaterial.id(), "username");
+        educationalMaterialFacade.unlikeMaterial(educationalMaterial.id(), "username");
         // then
         assertThat(educationalMaterialFacade.getMaterialById(educationalMaterial.id()).likes()).isEqualTo(0);
+
+    }
+
+    @Test
+    void shouldThrowExceptionIfMaterialIsAlreadyLikeByUser() {
+        // given
+        EducationalMaterialData materialData = new EducationalMaterialData("Tytuł", "Opis", "Treść");
+        EducationalMaterial educationalMaterial = educationalMaterialFacade.createEducationalMaterial(materialData);
+        String username = "username";
+        educationalMaterialFacade.likeMaterial(educationalMaterial.id(), username);
+        // when
+        Throwable thrown = catchThrowable(() -> educationalMaterialFacade.likeMaterial(educationalMaterial.id(), username));
+
+        // then
+        AssertionsForClassTypes.assertThat(thrown)
+                .isInstanceOf(AlreadyLikedException.class)
+                .hasMessage(String.format("User with username: %s already liked EducationalMaterial", username));
+
 
     }
 }

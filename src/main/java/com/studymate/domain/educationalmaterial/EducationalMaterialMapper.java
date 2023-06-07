@@ -3,6 +3,7 @@ package com.studymate.domain.educationalmaterial;
 import com.studymate.domain.educationalmaterial.dto.EducationalMaterialData;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class EducationalMaterialMapper {
     public static EducationalMaterial mapToEducationalMaterial(EducationalMaterialData materialData) {
@@ -13,6 +14,7 @@ public class EducationalMaterialMapper {
                 .comments(new ArrayList<>())
                 .status(MaterialStatus.PENDING)
                 .likes(0)
+                .likedBy(new HashSet<>())
                 .build();
     }
 
@@ -24,6 +26,7 @@ public class EducationalMaterialMapper {
                 .comments(material.comments())
                 .status(MaterialStatus.APPROVED)
                 .likes(material.likes())
+                .likedBy(material.likedBy())
                 .build();
     }
 
@@ -35,6 +38,7 @@ public class EducationalMaterialMapper {
                 .comments(material.comments())
                 .status(MaterialStatus.REJECTED)
                 .likes(material.likes())
+                .likedBy(material.likedBy())
                 .build();
     }
 }

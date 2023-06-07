@@ -1,17 +1,19 @@
 package com.studymate.infrastructure.educationalmaterial.controller;
 
+import com.studymate.domain.educationalmaterial.Comment;
 import com.studymate.domain.educationalmaterial.EducationalMaterial;
 import com.studymate.domain.educationalmaterial.EducationalMaterialFacade;
+import com.studymate.domain.educationalmaterial.dto.CommentData;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/educational-content")
+@RequestMapping("/api/educational-content")
 @AllArgsConstructor
 public class EducationalMaterialRestController {
 
@@ -22,6 +24,42 @@ public class EducationalMaterialRestController {
         List<EducationalMaterial> educationalMaterials = educationalMaterialFacade.getEducationalMaterials();
         return ResponseEntity.ok(educationalMaterials);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<EducationalMaterial> getMaterialById(@PathVariable String id) {
+        EducationalMaterial educationalMaterialById = educationalMaterialFacade.getMaterialById(id);
+        return ResponseEntity.ok(educationalMaterialById);
+    }
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<List<Comment>> getMaterialComments(@PathVariable String id) {
+        List<Comment> comments = educationalMaterialFacade.getMaterialComments(id);
+        return ResponseEntity.ok(comments);
+    }
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<List<Comment>> addComment(@PathVariable String id, @RequestBody String text) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserName = authentication.getName();
+        CommentData commentData = new CommentData(text, currentUserName);
+        educationalMaterialFacade.addMaterialComment(id,commentData);
+        List<Comment> comments = educationalMaterialFacade.getMaterialComments(id);
+        return ResponseEntity.ok(comments);
+    }
+
+    @PostMapping("/{id}/likes")
+    public ResponseEntity<Integer> likeMaterial(@PathVariable String id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserName = authentication.getName();
+        educationalMaterialFacade.likeMaterial(id, currentUserName);
+        return ResponseEntity.ok(educationalMaterialFacade.getMaterialById(id).likes());
+    }
+    @DeleteMapping("/{id}/likes")
+    public ResponseEntity<Integer> unlikeMaterial(@PathVariable String id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserName = authentication.getName();
+        educationalMaterialFacade.unlikeMaterial(id, currentUserName);
+        return ResponseEntity.ok(educationalMaterialFacade.getMaterialById(id).likes());
+    }
+
 
 
 

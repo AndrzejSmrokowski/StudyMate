@@ -21,13 +21,13 @@ public class EducationalMaterialService {
 
     public EducationalMaterial getMaterialById(String materialId) {
         return educationalMaterialRepository.findById(materialId)
-                .orElseThrow(() -> new MaterialNotFoundException("Educational material not found"));
+                .orElseThrow(() -> new MaterialNotFoundException(materialId));
     }
 
 
     public void updateEducationalMaterial(String materialId, EducationalMaterialData materialData) {
         EducationalMaterial existingMaterial = educationalMaterialRepository.findById(materialId)
-                .orElseThrow(() -> new MaterialNotFoundException("Educational material not found"));
+                .orElseThrow(() -> new MaterialNotFoundException(materialId));
 
         EducationalMaterial updatedMaterial = EducationalMaterial.builder()
                 .id(existingMaterial.id())
@@ -37,13 +37,14 @@ public class EducationalMaterialService {
                 .comments(existingMaterial.comments())
                 .status(existingMaterial.status())
                 .likes(existingMaterial.likes())
+                .likedBy(existingMaterial.likedBy())
                 .build();
 
         educationalMaterialRepository.save(updatedMaterial);
     }
     public void updateEducationalMaterial(String materialId, EducationalMaterial material) {
         EducationalMaterial existingMaterial = educationalMaterialRepository.findById(materialId)
-                .orElseThrow(() -> new MaterialNotFoundException("Educational material not found"));
+                .orElseThrow(() -> new MaterialNotFoundException(materialId));
         EducationalMaterial updatedMaterial = EducationalMaterial.builder()
                 .id(existingMaterial.id())
                 .title(material.title())
@@ -52,6 +53,7 @@ public class EducationalMaterialService {
                 .comments(material.comments())
                 .status(material.status())
                 .likes(material.likes())
+                .likedBy(material.likedBy())
                 .build();
         educationalMaterialRepository.save(updatedMaterial);
     }

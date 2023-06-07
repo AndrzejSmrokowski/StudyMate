@@ -137,6 +137,7 @@ public class InMemoryEducationalMaterialRepository implements EducationalMateria
                  .comments(entity.comments())
                  .status(entity.status())
                  .likes(entity.likes())
+                 .likedBy(entity.likedBy())
                  .build();
 
          database.put(id, savedEducationalMaterial);
