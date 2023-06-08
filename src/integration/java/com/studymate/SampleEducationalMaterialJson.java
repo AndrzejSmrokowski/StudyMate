@@ -1,6 +1,6 @@
 package com.studymate;
 
-public interface SampleEducationalMaterialResponse {
+public interface SampleEducationalMaterialJson {
     default String bodyWithZeroEducationalMaterialsJson() {
         return "[]";
     }
@@ -33,4 +33,24 @@ public interface SampleEducationalMaterialResponse {
                 ]
                 """.trim();
     }
+
+    default String bodyWithEducationalMaterialDataJson() {
+        return """
+                {
+                "title": "Wprowadzenie do fizyki kwantowej",
+                "description": "Krotkie wprowadzenie do podstaw fizyki kwantowej",
+                "content": "Tresc materialu edukacyjnego o fizyce kwantowej"
+                }
+                """.trim();
+    }
+    default String bodyWithUpdatedEducationalMaterialDataJson() {
+        return """
+                {
+                "title": "Wprowadzenie do fizyki klasycznej",
+                "description": "Krotkie wprowadzenie do podstaw fizyki klasyczenj",
+                "content": "Tresc materialu edukacyjnego o fizyce klasycznej"
+                }
+                """.trim();
+    }
 }
+

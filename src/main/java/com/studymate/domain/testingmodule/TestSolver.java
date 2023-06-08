@@ -3,6 +3,7 @@ package com.studymate.domain.testingmodule;
 import com.studymate.domain.testingmodule.dto.AnswerData;
 import com.studymate.domain.testingmodule.dto.TestSubmissionData;
 
+import java.time.Instant;
 import java.util.List;
 
 public class TestSolver {
@@ -24,7 +25,12 @@ public class TestSolver {
 
         double score = (double) correctAnswers / totalQuestions * 100;
 
-        return new TestResult(score, exam.examId(), submissionData.userId());
+        return TestResult.builder()
+                .score(score)
+                .testId(exam.id())
+                .userId(submissionData.userId())
+                .timestamp(Instant.now())
+                .build();
     }
 
     private AnswerData findAnswerById(List<AnswerData> answers, String questionId) {

@@ -4,6 +4,7 @@ import com.studymate.domain.educationalmaterial.Comment;
 import com.studymate.domain.educationalmaterial.EducationalMaterial;
 import com.studymate.domain.educationalmaterial.EducationalMaterialFacade;
 import com.studymate.domain.educationalmaterial.dto.CommentData;
+import com.studymate.domain.educationalmaterial.dto.EducationalMaterialData;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -25,6 +26,19 @@ public class EducationalMaterialRestController {
         return ResponseEntity.ok(educationalMaterials);
     }
 
+    @PostMapping
+    public ResponseEntity<EducationalMaterial> createEducationalMaterial(@RequestBody EducationalMaterialData materialData) {
+        EducationalMaterial educationalMaterial = educationalMaterialFacade.createEducationalMaterial(materialData);
+        return ResponseEntity.ok(educationalMaterial);
+
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<EducationalMaterial> updateEducationalMaterial(@PathVariable String id, @RequestBody EducationalMaterialData materialData) {
+        educationalMaterialFacade.updateEducationalMaterial(id, materialData);
+        EducationalMaterial educationalMaterial = educationalMaterialFacade.getMaterialById(id);
+        return ResponseEntity.ok(educationalMaterial);
+    }
     @GetMapping("/{id}")
     public ResponseEntity<EducationalMaterial> getMaterialById(@PathVariable String id) {
         EducationalMaterial educationalMaterialById = educationalMaterialFacade.getMaterialById(id);

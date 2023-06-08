@@ -3,7 +3,7 @@ package com.studymate.features;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.studymate.BaseIntegrationTest;
 import com.studymate.SampleEducationalMaterial;
-import com.studymate.SampleEducationalMaterialResponse;
+import com.studymate.SampleEducationalMaterialJson;
 import com.studymate.domain.educationalmaterial.Comment;
 import com.studymate.domain.educationalmaterial.EducationalMaterial;
 import com.studymate.domain.educationalmaterial.EducationalMaterialFacade;
@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-public class TypicalScenarioUserAccessEducationalContentIntegrationTest extends BaseIntegrationTest implements SampleEducationalMaterialResponse, SampleEducationalMaterial {
+public class TypicalScenarioUserAccessEducationalContentIntegrationTest extends BaseIntegrationTest implements SampleEducationalMaterialJson, SampleEducationalMaterial {
     @Autowired
     EducationalMaterialFacade educationalMaterialFacade;
     @Test
