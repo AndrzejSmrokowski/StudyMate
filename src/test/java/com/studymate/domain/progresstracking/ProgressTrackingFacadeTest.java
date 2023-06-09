@@ -33,7 +33,11 @@ class ProgressTrackingFacadeTest {
     void shouldAddTestScoresToProgress() {
         // given
         String userId = "userId";
-        TestResult testResult = new TestResult(100, "testId", userId);
+        TestResult testResult = TestResult.builder()
+                .score(100)
+                .testId("testId")
+                .userId(userId)
+                .build();
         progressTrackingFacade.initializeProgress(userId);
 
         // when

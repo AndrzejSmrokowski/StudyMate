@@ -20,10 +20,10 @@ class TestingModuleFacadeTest {
         // given
         Exam exam = testingModuleFacade.createTest(dataProvider.testDataForTest());
         // when
-        Exam retrivedExam = testingModuleFacade.getTestById(exam.examId());
+        Exam retrivedExam = testingModuleFacade.getTestById(exam.id());
         // then
         assertThat(retrivedExam).isEqualTo(Exam.builder()
-                .examId(retrivedExam.examId())
+                .id(retrivedExam.id())
                 .examName(exam.examName())
                 .questions(exam.questions())
                 .build());
@@ -35,7 +35,7 @@ class TestingModuleFacadeTest {
         // given
         Exam exam = testingModuleFacade.createTest(dataProvider.testDataForTest());
         // when
-        TestResult testResult = testingModuleFacade.solveTest(exam.examId(), dataProvider.testSubmissionDataForTestWithCorrectAnswers(exam.examId()));
+        TestResult testResult = testingModuleFacade.solveTest(exam.id(), dataProvider.testSubmissionDataForTestWithCorrectAnswers(exam.id()));
         // then
         assertThat(testResult.score()).isEqualTo(100);
 
@@ -45,7 +45,7 @@ class TestingModuleFacadeTest {
         // given
         Exam exam = testingModuleFacade.createTest(dataProvider.testDataForTest());
         // when
-        TestResult testResult = testingModuleFacade.solveTest(exam.examId(), dataProvider.testSubmissionDataForTestWithIncorrectAnswers(exam.examId()));
+        TestResult testResult = testingModuleFacade.solveTest(exam.id(), dataProvider.testSubmissionDataForTestWithIncorrectAnswers(exam.id()));
         // then
         assertThat(testResult.score()).isEqualTo(0);
 
@@ -55,9 +55,9 @@ class TestingModuleFacadeTest {
     void shouldReturnListOfTestResultsByTestId() {
         // given
         Exam exam = testingModuleFacade.createTest(dataProvider.testDataForTest());
-        testingModuleFacade.solveTest(exam.examId(), dataProvider.testSubmissionDataForTestWithIncorrectAnswers(exam.examId()));
+        testingModuleFacade.solveTest(exam.id(), dataProvider.testSubmissionDataForTestWithIncorrectAnswers(exam.id()));
         // when
-        List<TestResult> resultList = testingModuleFacade.getTestResults(exam.examId());
+        List<TestResult> resultList = testingModuleFacade.getTestResults(exam.id(), "userId");
         // then
         assertThat(resultList).hasSize(1);
     }
@@ -67,7 +67,7 @@ class TestingModuleFacadeTest {
         // given
         Exam exam = testingModuleFacade.createTest(dataProvider.testDataForTest());
         // when
-        List<Question> questions = testingModuleFacade.getTestQuestions(exam.examId());
+        List<Question> questions = testingModuleFacade.getTestQuestions(exam.id());
         // then
         assertThat(questions).hasSize(3);
 
@@ -77,7 +77,7 @@ class TestingModuleFacadeTest {
     void shouldReturnQuestionById() {
         // given
         Exam exam = testingModuleFacade.createTest(dataProvider.testDataForTest());
-        String testId = exam.examId();
+        String testId = exam.id();
         List<Question> questions = testingModuleFacade.getTestQuestions(testId);
         String questionId = questions.get(0).questionId();
 
@@ -109,12 +109,12 @@ class TestingModuleFacadeTest {
         Exam exam = testingModuleFacade.createTest(dataProvider.testDataForTest());
 
         //when
-        Throwable thrown = catchThrowable(() -> testingModuleFacade.getTestResults(exam.examId()));
+        Throwable thrown = catchThrowable(() -> testingModuleFacade.getTestResults(exam.id(), "username"));
 
         // then
         AssertionsForClassTypes.assertThat(thrown)
                 .isInstanceOf(ResultsNotFoundException.class)
-                .hasMessage("Result not found for test id: " + exam.examId());
+                .hasMessage("Result not found for test id: " + exam.id());
 
     }
 

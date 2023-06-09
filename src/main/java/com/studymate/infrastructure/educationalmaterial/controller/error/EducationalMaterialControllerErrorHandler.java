@@ -33,7 +33,7 @@ public class EducationalMaterialControllerErrorHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler(NotLikedYetException.class)
     @ResponseBody
-    public EducationalMaterialErrorResponse materialAlreadyLiked(NotLikedYetException exception) {
+    public EducationalMaterialErrorResponse materialNotLikedYet(NotLikedYetException exception) {
         final String message = exception.getMessage();
         log.error(message);
         return new EducationalMaterialErrorResponse(message, HttpStatus.CONFLICT);

@@ -21,6 +21,16 @@ public class InMemoryUserRepository implements UserRepository {
         return Optional.ofNullable(database.get(username));
     }
 
+    @Override
+    public boolean existsByUsername(String username) {
+        return database.containsKey(username);
+    }
+
+    @Override
+    public Optional<User> findByUserId(String userId) {
+        return Optional.empty();
+    }
+
 
     @Override
     public <S extends User> S save(S entity) {

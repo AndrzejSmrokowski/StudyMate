@@ -4,7 +4,6 @@ import lombok.Builder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -14,11 +13,13 @@ import java.util.Collection;
 public record User(
         @Id String userId,
         @Indexed(unique = true) String username,
-        String password
+        String password,
+        Collection<SimpleGrantedAuthority> authorities
+
 ) implements UserDetails {
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+    public Collection<SimpleGrantedAuthority> getAuthorities() {
+        return this.authorities;
     }
 
     @Override

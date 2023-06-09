@@ -1,8 +1,7 @@
 package com.studymate.domain.user.dto;
 
-public record RegisterUserDto(
+public record LogoutResponseDto(
         String username,
-        String password
-
+        boolean loggedOut
 ) {
 }

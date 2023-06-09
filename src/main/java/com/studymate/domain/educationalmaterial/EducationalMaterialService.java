@@ -57,4 +57,10 @@ public class EducationalMaterialService {
                 .build();
         educationalMaterialRepository.save(updatedMaterial);
     }
+
+    public void deleteMaterial(String id) {
+        EducationalMaterial educationalMaterial = educationalMaterialRepository.findById(id)
+                .orElseThrow(() -> new MaterialNotFoundException(id));
+        educationalMaterialRepository.delete(educationalMaterial);
+    }
 }

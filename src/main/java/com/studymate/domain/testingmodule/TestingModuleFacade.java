@@ -25,8 +25,8 @@ public class TestingModuleFacade {
         return testService.getTestById(testId);
     }
 
-    public List<TestResult> getTestResults(String testId) {
-        return testService.getTestResults(testId);
+    public List<TestResult> getTestResults(String testId, String userId) {
+        return testService.getTestResults(testId, userId);
     }
 
     public List<Question> getTestQuestions(String testId) {
@@ -43,4 +43,7 @@ public class TestingModuleFacade {
     }
 
 
+    public void deleteTest(String testId) {
+        testService.deleteTest(testId);
+    }
 }

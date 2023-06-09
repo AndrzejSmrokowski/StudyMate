@@ -19,8 +19,8 @@ public class EducationalMaterialFacade {
         EducationalMaterial educationalMaterial = EducationalMaterialMapper.mapToEducationalMaterial(materialData);
         return educationalMaterialService.createEducationalMaterial(educationalMaterial);
     }
-    public EducationalMaterial createEducationalMaterial(EducationalMaterial material) {
-        return educationalMaterialService.createEducationalMaterial(material);
+    public void createEducationalMaterial(EducationalMaterial material) {
+        educationalMaterialService.createEducationalMaterial(material);
     }
 
     public void updateEducationalMaterial(String materialId, EducationalMaterialData materialData) {
@@ -59,5 +59,9 @@ public class EducationalMaterialFacade {
 
     public void unlikeMaterial(String materialId, String username) {
         materialLikeManager.unlikeMaterial(materialId, username);
+    }
+
+    public void deleteMaterial(String id) {
+        educationalMaterialService.deleteMaterial(id);
     }
 }

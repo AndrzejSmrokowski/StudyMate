@@ -1,10 +1,11 @@
 package com.studymate.domain.testingmodule;
 
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
+
 import java.util.Optional;
+@Repository
+public interface TestRepository extends MongoRepository<Exam, String> {
 
-public interface TestRepository {
-
-    Exam save(Exam exam);
-
-    Optional<Exam> getTestById(String testId);
+    Optional<Exam> getTestById(String examId);
 }
