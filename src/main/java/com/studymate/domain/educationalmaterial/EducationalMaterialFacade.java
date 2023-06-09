@@ -19,8 +19,8 @@ public class EducationalMaterialFacade {
         EducationalMaterial educationalMaterial = EducationalMaterialMapper.mapToEducationalMaterial(materialData);
         return educationalMaterialService.createEducationalMaterial(educationalMaterial);
     }
-    public EducationalMaterial createEducationalMaterial(EducationalMaterial material) {
-        return educationalMaterialService.createEducationalMaterial(material);
+    public void createEducationalMaterial(EducationalMaterial material) {
+        educationalMaterialService.createEducationalMaterial(material);
     }
 
     public void updateEducationalMaterial(String materialId, EducationalMaterialData materialData) {

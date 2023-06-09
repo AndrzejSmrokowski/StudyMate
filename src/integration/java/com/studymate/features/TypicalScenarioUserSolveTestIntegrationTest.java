@@ -9,6 +9,8 @@ import com.studymate.domain.educationalmaterial.EducationalMaterial;
 import com.studymate.domain.educationalmaterial.MaterialStatus;
 import com.studymate.domain.testingmodule.Exam;
 import com.studymate.domain.testingmodule.TestResult;
+import com.studymate.domain.user.User;
+import com.studymate.domain.user.dto.LogoutResponseDto;
 import com.studymate.domain.user.dto.RegistrationResultDto;
 import com.studymate.infrastructure.user.controller.dto.JwtResponseDto;
 import org.junit.jupiter.api.Test;
@@ -222,8 +224,91 @@ public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegration
         performDeleteEducationalContent.andExpect(status().isNoContent()).andReturn();
 
         //Step 13: User sends a POST request to /api/users/logout, and the system logs the user out.
+        // given & when
+        ResultActions performLogoutRequest = mockMvc.perform(post("/api/users/logout")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+        );
+
+        // then
+        MvcResult logoutMvcResult = performLogoutRequest.andExpect(status().isOk()).andReturn();
+        String jsonWithLogoutResponse = logoutMvcResult.getResponse().getContentAsString();
+        LogoutResponseDto logoutResponseDto = objectMapper.readValue(jsonWithLogoutResponse, LogoutResponseDto.class);
+        assertAll(
+                () -> assertThat(logoutResponseDto.username()).isEqualTo("username"),
+                () -> assertThat(logoutResponseDto.loggedOut()).isTrue()
+        );
+
+        // further verifying the user is logged out by trying to access a secured endpoint
+        ResultActions performSecuredEndpointRequest = mockMvc.perform(get(educationalContentUrl)
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+        );
+
+        // then
+        performSecuredEndpointRequest.andExpect(status().isUnauthorized());
+        //Step 14: Admin sends a POST request to /apo/users/login with login credentials (i.e., username or email, password), and the system authenticates the admin and returns a JWT token.
+        // given & when
+        ResultActions adminLoginRequest = mockMvc.perform(post("/api/users/login")
+                .content("""
+                {
+                "username": "admin",
+                "password": "password"
+                }
+                """.trim())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+        );
+
+        // then
+        MvcResult adminLoginMvcResult = adminLoginRequest.andExpect(status().isOk()).andReturn();
+        String adminLoginJson = adminLoginMvcResult.getResponse().getContentAsString();
+        JwtResponseDto jwtAdminResponse = objectMapper.readValue(adminLoginJson, JwtResponseDto.class);
+        String adminToken = jwtAdminResponse.token();
+        assertAll(
+                () -> assertThat(jwtAdminResponse.username()).isEqualTo("admin"),
+                () -> assertThat(adminToken).matches(Pattern.compile("^([A-Za-z0-9-_=]+\\.)+([A-Za-z0-9-_=])+\\.?$"))
+        );
         //Step 14: Admin sends a GET request to /api/users, and the system returns a list of all users in the system.
+        // given
+        String usersUrl = "/api/users";
+        // when
+        ResultActions performGetUsers = mockMvc.perform(get(usersUrl)
+                .header("Authorization", "Bearer " + adminToken) // Assuming 'adminToken' has been initialized earlier
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+        );
+
+        // then
+        MvcResult getUsersMvcResult = performGetUsers.andExpect(status().isOk()).andReturn();
+        String jsonWithUsers = getUsersMvcResult.getResponse().getContentAsString();
+        List<User> allUsers = objectMapper.readValue(jsonWithUsers, new TypeReference<>() {}
+        );
+
+        assertAll(
+                () -> assertThat(allUsers).isNotEmpty(),
+                () ->  assertThat(allUsers).anyMatch(user -> user.username().equals("username"))
+        );
+
         //Step 15: Admin sends a DELETE request to /api/users/{userId}, where {userId} is the user identifier, and the system deletes that user from the system.
+        // given
+        String userId = registrationResultDto.id();
+        // when
+        ResultActions performDeleteUser = mockMvc.perform(delete(usersUrl + "/" + userId)
+                .header("Authorization", "Bearer " + adminToken)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+        );
+
+        // then
+        performDeleteUser.andExpect(status().isNoContent()).andReturn();
+
+        // further verifying the user has been deleted by trying to get the user details
+        ResultActions performGetUser = mockMvc.perform(get(usersUrl + "/" + userId)
+                .header("Authorization", "Bearer " + adminToken)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+        );
+
+        // then
+        performGetUser.andExpect(status().isNotFound());
+
         //Step 16: User sends a GET request to /api/educational-content/{contentId}, where {contentId} is the identifier of the educational content, and the system returns the details of that educational content.
         //Step 17: User sends a GET request to /api/educational-content/{contentId}/comments, where {contentId} is the identifier of the educational content, and the system returns a list of comments for that educational content.
         //Step 18: User sends a POST request to /api/educational-content/{contentId}/comments, where {contentId} is the identifier of the educational content, along with the content of the comment, and the system adds a new comment to that educational content.
