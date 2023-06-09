@@ -30,4 +30,9 @@ public class TestService {
     public TestResult saveResult(TestResult result) {
         return testResultRepository.save(result);
     }
+
+    public void deleteTest(String testId) {
+        Exam exam = testRepository.getTestById(testId).orElseThrow(() -> new TestNotFoundException(testId));
+        testRepository.delete(exam);
+    }
 }

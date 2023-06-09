@@ -202,17 +202,25 @@ public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegration
         );
 
         //Step 11: User sends a DELETE request to /api/tests/{testId}, where {testId} is the test identifier, and the system deletes that test.
-        // when
-        ResultActions performDeleteTests = mockMvc.perform(delete(testingModuleUrl + "/" + examId)
+        // given & when
+        ResultActions performDeleteTest = mockMvc.perform(delete(testingModuleUrl + "/" + examId)
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
 
         // then
-        MvcResult deleteTestMvcResult = performGetTests.andExpect(status().isOk()).andReturn();
-
+        performDeleteTest.andExpect(status().isNoContent()).andReturn();
 
         //Step 12: User sends a DELETE request to /api/educational-content/{contentId}, where {contentId} is the identifier of the educational content, and the system deletes that educational content.
+        // given & then
+        ResultActions performDeleteEducationalContent = mockMvc.perform(delete(educationalContentUrl + "/" + educationalMaterial.id())
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+        );
+
+        // then
+        performDeleteEducationalContent.andExpect(status().isNoContent()).andReturn();
+
         //Step 13: User sends a POST request to /api/users/logout, and the system logs the user out.
         //Step 14: Admin sends a GET request to /api/users, and the system returns a list of all users in the system.
         //Step 15: Admin sends a DELETE request to /api/users/{userId}, where {userId} is the user identifier, and the system deletes that user from the system.

@@ -60,4 +60,8 @@ public class EducationalMaterialFacade {
     public void unlikeMaterial(String materialId, String username) {
         materialLikeManager.unlikeMaterial(materialId, username);
     }
+
+    public void deleteMaterial(String id) {
+        educationalMaterialService.deleteMaterial(id);
+    }
 }

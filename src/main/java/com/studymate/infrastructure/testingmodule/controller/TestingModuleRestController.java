@@ -1,6 +1,7 @@
 package com.studymate.infrastructure.testingmodule.controller;
 
 import com.studymate.domain.testingmodule.Exam;
+import com.studymate.domain.testingmodule.Question;
 import com.studymate.domain.testingmodule.TestResult;
 import com.studymate.domain.testingmodule.TestingModuleFacade;
 import com.studymate.domain.testingmodule.dto.TestData;
@@ -60,4 +61,25 @@ public class TestingModuleRestController {
         return ResponseEntity.ok(testResults);
 
     }
+
+    @DeleteMapping("/{testId}")
+    public ResponseEntity<Void> deleteTest(@PathVariable String testId) {
+        testingModuleFacade.deleteTest(testId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{testId}/questions")
+    public ResponseEntity<List<Question>> getTestQuestions(@PathVariable String testId) {
+        List<Question> questions = testingModuleFacade.getTestQuestions(testId);
+        return ResponseEntity.ok(questions);
+    }
+
+    @GetMapping("/{testId}/questions/{questionId}")
+    public ResponseEntity<Question> getQuestionById(@PathVariable String testId, @PathVariable String questionId) {
+        Question question = testingModuleFacade.getQuestionById(testId, questionId);
+        return question != null
+                ? ResponseEntity.ok(question)
+                : ResponseEntity.notFound().build();
+    }
+
 }

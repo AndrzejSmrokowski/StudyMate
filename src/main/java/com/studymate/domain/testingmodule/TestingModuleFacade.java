@@ -43,4 +43,7 @@ public class TestingModuleFacade {
     }
 
 
+    public void deleteTest(String testId) {
+        testService.deleteTest(testId);
+    }
 }
