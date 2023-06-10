@@ -1,5 +1,7 @@
 package com.studymate.domain.user;
 
+import com.studymate.domain.progresstracking.ProgressRepository;
+import com.studymate.domain.progresstracking.ProgressTrackingFacade;
 import com.studymate.domain.user.dto.RegisterUserDto;
 import com.studymate.domain.user.dto.RegistrationResultDto;
 import org.assertj.core.api.AssertionsForClassTypes;
@@ -9,10 +11,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 
 class UserManagementFacadeTest {
-    private final UserManagementFacade userManagementFacade = new UserManagementFacade(new InMemoryUserRepository(),new BCryptPasswordEncoder());
+    private final ProgressTrackingFacade progressTrackingFacade = mock(ProgressTrackingFacade.class);
+    private final ProgressRepository progressRepository = mock(ProgressRepository.class);
+    private final UserManagementFacade userManagementFacade = new UserManagementFacade(new InMemoryUserRepository(),new BCryptPasswordEncoder(), progressTrackingFacade, progressRepository);
 
     @Test
     void shouldRegisterUser() {

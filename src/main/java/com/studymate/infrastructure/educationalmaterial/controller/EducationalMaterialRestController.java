@@ -5,6 +5,9 @@ import com.studymate.domain.educationalmaterial.EducationalMaterial;
 import com.studymate.domain.educationalmaterial.EducationalMaterialFacade;
 import com.studymate.domain.educationalmaterial.dto.CommentData;
 import com.studymate.domain.educationalmaterial.dto.EducationalMaterialData;
+import com.studymate.domain.progresstracking.ProgressTrackingFacade;
+import com.studymate.domain.user.User;
+import com.studymate.domain.user.UserManagementFacade;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -19,6 +22,8 @@ import java.util.List;
 public class EducationalMaterialRestController {
 
     private final EducationalMaterialFacade educationalMaterialFacade;
+    private final UserManagementFacade userManagementFacade;
+    private final ProgressTrackingFacade progressTrackingFacade;
 
     @GetMapping
     public ResponseEntity<List<EducationalMaterial>> getEducationalMaterials() {
@@ -56,6 +61,7 @@ public class EducationalMaterialRestController {
     public ResponseEntity<List<Comment>> addComment(@PathVariable String id, @RequestBody String text) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserName = authentication.getName();
+
         CommentData commentData = new CommentData(text, currentUserName);
         educationalMaterialFacade.addMaterialComment(id, commentData);
         List<Comment> comments = educationalMaterialFacade.getMaterialComments(id);
@@ -66,6 +72,7 @@ public class EducationalMaterialRestController {
     public ResponseEntity<Integer> likeMaterial(@PathVariable String id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserName = authentication.getName();
+
         educationalMaterialFacade.likeMaterial(id, currentUserName);
         return ResponseEntity.ok(educationalMaterialFacade.getMaterialById(id).likes());
     }
@@ -74,6 +81,7 @@ public class EducationalMaterialRestController {
     public ResponseEntity<Integer> unlikeMaterial(@PathVariable String id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserName = authentication.getName();
+
         educationalMaterialFacade.unlikeMaterial(id, currentUserName);
         return ResponseEntity.ok(educationalMaterialFacade.getMaterialById(id).likes());
     }
@@ -82,6 +90,17 @@ public class EducationalMaterialRestController {
     public ResponseEntity<Void> deleteMaterial(@PathVariable String id) {
         educationalMaterialFacade.deleteMaterial(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/review")
+    public ResponseEntity<Void> reviewMaterial(@PathVariable String id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserName = authentication.getName();
+        User currentUser = userManagementFacade.findUserByUsername(currentUserName);
+        String currentUserId = currentUser.userId();
+        EducationalMaterial material = educationalMaterialFacade.getMaterialById(id);
+        progressTrackingFacade.addReviewedMaterialIdToProgress(material, currentUserId);
+        return ResponseEntity.ok().build();
     }
 }
 

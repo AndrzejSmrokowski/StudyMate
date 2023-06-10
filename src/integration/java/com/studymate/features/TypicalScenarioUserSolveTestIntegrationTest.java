@@ -2,21 +2,26 @@ package com.studymate.features;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.studymate.BaseIntegrationTest;
-import com.studymate.SampleEducationalMaterialJson;
-import com.studymate.SampleTestingModuleDataProvider;
-import com.studymate.SampleTestJson;
+import com.studymate.DataProviderForIntegrationTests;
 import com.studymate.domain.educationalmaterial.EducationalMaterial;
 import com.studymate.domain.educationalmaterial.MaterialStatus;
+import com.studymate.domain.progresstracking.Progress;
 import com.studymate.domain.testingmodule.Exam;
 import com.studymate.domain.testingmodule.TestResult;
 import com.studymate.domain.user.User;
 import com.studymate.domain.user.dto.LogoutResponseDto;
 import com.studymate.domain.user.dto.RegistrationResultDto;
+import com.studymate.domain.user.dto.UserData;
 import com.studymate.infrastructure.user.controller.dto.JwtResponseDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.utility.DockerImageName;
 
 import java.util.List;
 import java.util.regex.Pattern;
@@ -26,10 +31,19 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegrationTest implements SampleEducationalMaterialJson, SampleTestJson, SampleTestingModuleDataProvider {
+public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegrationTest implements DataProviderForIntegrationTests {
+
+    @Container
+    public static final MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse("mongo:4.0.10"));
+
+    @DynamicPropertySource
+    public static void propertyOverride(DynamicPropertyRegistry registry) {
+        registry.add("spring.data.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+    }
+
     @Test
     public void userLearnFromEducationalMaterialThenSolvesTestAndWantsToSeeHisProgress() throws Exception {
-    //Step 1: User sends a POST request to /api/users/register with registration data such as username, password, and the system registers a new user.
+        //Step 1: User sends a POST request to /api/users/register with registration data such as username, password, and the system registers a new user.
         // given & when
         ResultActions registerAction = mockMvc.perform(post("/api/users/register")
                 .content("""
@@ -74,6 +88,23 @@ public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegration
         );
 
         //Step 3: User sends a GET request to /api/users/{userId}, where {userId} is the user identifier, and the system returns the respective user data.
+        // given & when
+        ResultActions performGetUserById = mockMvc.perform(get("/api/users/" + registrationResultDto.id())
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+        );
+
+        //then
+        MvcResult getUserByIdMvcResult = performGetUserById.andExpect(status().isOk()).andReturn();
+        String jsonWithUserById = getUserByIdMvcResult.getResponse().getContentAsString();
+        UserData userData = objectMapper.readValue(jsonWithUserById, new TypeReference<>() {
+        });
+
+        assertAll(
+                () -> assertThat(userData.username()).isEqualTo("username"),
+                () -> assertThat(userData.progress()).isNotNull(),
+                () -> assertThat(userData.authorities()).hasSize(1)
+        );
 
         //Step 4: User sends a GET request to /api/educational-content, and the system returns a list of all available educational materials.
         // given
@@ -88,6 +119,7 @@ public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegration
         String jsonWithEducationalMaterials = mvcResult2.getResponse().getContentAsString();
         List<EducationalMaterial> educationalMaterials = objectMapper.readValue(jsonWithEducationalMaterials, new TypeReference<>() {
         });
+
         assertThat(educationalMaterials).isEmpty();
 
         //Step 5: User sends a POST request to /api/educational-content with the data of a new educational material (e.g., title, description, content), and the system creates a new educational material.
@@ -97,15 +129,19 @@ public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegration
                 .content(bodyWithEducationalMaterialDataJson())
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
+
         // then
         MvcResult PostEducationalContentMvcResult = performPostEducationalContent.andExpect(status().isOk()).andReturn();
         String jsonWithEducationalMaterial = PostEducationalContentMvcResult.getResponse().getContentAsString();
         EducationalMaterial educationalMaterial = objectMapper.readValue(jsonWithEducationalMaterial, new TypeReference<>() {
         });
+
         assertAll(
                 () -> assertThat(educationalMaterial.status()).isEqualTo(MaterialStatus.PENDING),
-                () -> assertThat(educationalMaterial.description()).isEqualTo("Krotkie wprowadzenie do podstaw fizyki kwantowej")
+                () -> assertThat(educationalMaterial.description()).isEqualTo("Krotkie wprowadzenie do podstaw fizyki kwantowej"),
+                () -> assertThat(educationalMaterial.comments()).isNotNull()
         );
+
         //Step 6: User sends a PUT request to /api/educational-content/{contentId}, where {contentId} is the identifier of the existing content, along with the updated data (e.g., title, description, content), and the system updates the educational content.
         // given & when
         ResultActions performPutEducationalContent = mockMvc.perform(put(educationalContentUrl + "/" + educationalMaterial.id())
@@ -119,31 +155,46 @@ public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegration
         String jsonWithUpdatedMaterial = putEducationalContentMvcResult.getResponse().getContentAsString();
         EducationalMaterial updatedEducationalMaterial = objectMapper.readValue(jsonWithUpdatedMaterial, new TypeReference<>() {
         });
+
         assertAll(
                 () -> assertThat(updatedEducationalMaterial.status()).isEqualTo(MaterialStatus.PENDING),
                 () -> assertThat(updatedEducationalMaterial.description()).isEqualTo("Krotkie wprowadzenie do podstaw fizyki klasyczenj")
         );
 
-        //Step 7: User sends a POST request to /api/tests to create a new test, providing test data (e.g., title, questions, answers), and the system creates a new test.
+        //Step 7: User sends a POST request to /api/educational-content/{contentId}/review  to review educational material
+        // given & when
+        ResultActions performReviewEducationalContent = mockMvc.perform(post(educationalContentUrl + "/" + educationalMaterial.id() + "/review")
+                .header("Authorization", "Bearer " + token)
+                .content(bodyWithUpdatedEducationalMaterialDataJson())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+        );
+
+        // then
+        performReviewEducationalContent.andExpect(status().isOk()).andReturn();
+
+        //Step 8: User sends a POST request to /api/tests to create a new test, providing test data (e.g., title, questions, answers), and the system creates a new test.
         // given
-         String testingModuleUrl = "/api/tests";
+        String testingModuleUrl = "/api/tests";
+
         // when
         ResultActions performPostTests = mockMvc.perform(post(testingModuleUrl)
-                        .header("Authorization", "Bearer " + token)
-                        .content(bodyWithTestDataJson())
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", "Bearer " + token)
+                .content(bodyWithTestDataJson())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
+
         // then
         MvcResult postTestMvcResult = performPostTests.andExpect(status().isOk()).andReturn();
         String jsonWithCreatedTest = postTestMvcResult.getResponse().getContentAsString();
         Exam exam = objectMapper.readValue(jsonWithCreatedTest, new TypeReference<>() {
         });
+
         assertAll(
                 () -> assertThat(exam.questions()).isEqualTo(provideSampleExam().questions()),
                 () -> assertThat(exam.examName()).isEqualTo(provideSampleExam().examName())
         );
 
-        //Step 8: User sends a GET request to /api/tests/{testId}, where {testId} is the identifier of the existing test, and the system returns the details of that test.
+        //Step 9: User sends a GET request to /api/tests/{testId}, where {testId} is the identifier of the existing test, and the system returns the details of that test.
         // given
         String examId = exam.id();
 
@@ -163,10 +214,8 @@ public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegration
                 () -> assertThat(testById.examName()).isEqualTo(provideSampleExam().examName())
         );
 
-        //Step 9: User sends a POST request to /api/tests/{testId}/submit, where {testId} is the test identifier, along with answers to the test questions, and the system evaluates the user's responses and returns the results.
-        // given
-
-        // when
+        //Step 10: User sends a POST request to /api/tests/{testId}/submit, where {testId} is the test identifier, along with answers to the test questions, and the system evaluates the user's responses and returns the results.
+        // given & when
         ResultActions performPostTestSubmission = mockMvc.perform(post(testingModuleUrl + "/" + examId + "/submit")
                 .header("Authorization", "Bearer " + token)
                 .content(bodyWithTestSubmissionDataJson(examId))
@@ -178,14 +227,15 @@ public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegration
         String jsonWithTestResult = postTestSubmissionMvcResult.getResponse().getContentAsString();
         TestResult testResult = objectMapper.readValue(jsonWithTestResult, new TypeReference<>() {
         });
+
         assertAll(
                 () -> assertThat(testResult.testId()).isEqualTo(examId),
                 () -> assertThat(testResult.score()).isEqualTo(100),
                 () -> assertThat(testResult.userId()).isEqualTo(registrationResultDto.id())
         );
 
-        //Step 10: User sends a GET request to /api/tests/{testId}/results, where {testId} is the test identifier, and the system returns the results of that test.
-        // when
+        //Step 11: User sends a GET request to /api/tests/{testId}/results, where {testId} is the test identifier, and the system returns the results of that test.
+        // given & when
         ResultActions performGetTestResult = mockMvc.perform(get(testingModuleUrl + "/" + examId + "/results")
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -203,7 +253,7 @@ public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegration
                 () -> assertThat(testResultByTestId.userId()).isEqualTo(registrationResultDto.id())
         );
 
-        //Step 11: User sends a DELETE request to /api/tests/{testId}, where {testId} is the test identifier, and the system deletes that test.
+        //Step 12: User sends a DELETE request to /api/tests/{testId}, where {testId} is the test identifier, and the system deletes that test.
         // given & when
         ResultActions performDeleteTest = mockMvc.perform(delete(testingModuleUrl + "/" + examId)
                 .header("Authorization", "Bearer " + token)
@@ -213,7 +263,7 @@ public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegration
         // then
         performDeleteTest.andExpect(status().isNoContent()).andReturn();
 
-        //Step 12: User sends a DELETE request to /api/educational-content/{contentId}, where {contentId} is the identifier of the educational content, and the system deletes that educational content.
+        //Step 13: User sends a DELETE request to /api/educational-content/{contentId}, where {contentId} is the identifier of the educational content, and the system deletes that educational content.
         // given & then
         ResultActions performDeleteEducationalContent = mockMvc.perform(delete(educationalContentUrl + "/" + educationalMaterial.id())
                 .header("Authorization", "Bearer " + token)
@@ -223,7 +273,29 @@ public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegration
         // then
         performDeleteEducationalContent.andExpect(status().isNoContent()).andReturn();
 
-        //Step 13: User sends a POST request to /api/users/logout, and the system logs the user out.
+        //Step 14: User sends a GET request to /api/progress and system returns progress for that user
+        // given
+        String progressTrackingUrl = "/api/progress";
+
+        // when
+        ResultActions performGetProgress = mockMvc.perform(get(progressTrackingUrl)
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+        );
+
+        // then 
+        MvcResult getProgressMvcResult = performGetProgress.andExpect(status().isOk()).andReturn();
+        String jsonWithProgress = getProgressMvcResult.getResponse().getContentAsString();
+        Progress progress = objectMapper.readValue(jsonWithProgress, Progress.class);
+
+        assertAll(
+                () -> assertThat(progress.userId()).isEqualTo(registrationResultDto.id()),
+                () -> assertThat(progress.testScores()).hasSize(1),
+                () -> assertThat(progress.reviewedMaterialsId()).hasSize(1),
+                () -> assertThat(progress.reviewedMaterialsId().get(0)).isEqualTo(educationalMaterial.id())
+        );
+
+        //Step 15: User sends a POST request to /api/users/logout, and the system logs the user out.
         // given & when
         ResultActions performLogoutRequest = mockMvc.perform(post("/api/users/logout")
                 .header("Authorization", "Bearer " + token)
@@ -234,6 +306,7 @@ public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegration
         MvcResult logoutMvcResult = performLogoutRequest.andExpect(status().isOk()).andReturn();
         String jsonWithLogoutResponse = logoutMvcResult.getResponse().getContentAsString();
         LogoutResponseDto logoutResponseDto = objectMapper.readValue(jsonWithLogoutResponse, LogoutResponseDto.class);
+
         assertAll(
                 () -> assertThat(logoutResponseDto.username()).isEqualTo("username"),
                 () -> assertThat(logoutResponseDto.loggedOut()).isTrue()
@@ -247,15 +320,16 @@ public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegration
 
         // then
         performSecuredEndpointRequest.andExpect(status().isUnauthorized());
-        //Step 14: Admin sends a POST request to /apo/users/login with login credentials (i.e., username or email, password), and the system authenticates the admin and returns a JWT token.
+
+        //Step 16: Admin sends a POST request to /apo/users/login with login credentials (i.e., username or email, password), and the system authenticates the admin and returns a JWT token.
         // given & when
         ResultActions adminLoginRequest = mockMvc.perform(post("/api/users/login")
                 .content("""
-                {
-                "username": "admin",
-                "password": "password"
-                }
-                """.trim())
+                        {
+                        "username": "admin",
+                        "password": "password"
+                        }
+                        """.trim())
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
         );
 
@@ -264,13 +338,17 @@ public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegration
         String adminLoginJson = adminLoginMvcResult.getResponse().getContentAsString();
         JwtResponseDto jwtAdminResponse = objectMapper.readValue(adminLoginJson, JwtResponseDto.class);
         String adminToken = jwtAdminResponse.token();
+
         assertAll(
                 () -> assertThat(jwtAdminResponse.username()).isEqualTo("admin"),
                 () -> assertThat(adminToken).matches(Pattern.compile("^([A-Za-z0-9-_=]+\\.)+([A-Za-z0-9-_=])+\\.?$"))
         );
-        //Step 14: Admin sends a GET request to /api/users, and the system returns a list of all users in the system.
+
+
+        //Step 17: Admin sends a GET request to /api/users, and the system returns a list of all users in the system.
         // given
         String usersUrl = "/api/users";
+
         // when
         ResultActions performGetUsers = mockMvc.perform(get(usersUrl)
                 .header("Authorization", "Bearer " + adminToken) // Assuming 'adminToken' has been initialized earlier
@@ -285,12 +363,13 @@ public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegration
 
         assertAll(
                 () -> assertThat(allUsers).isNotEmpty(),
-                () ->  assertThat(allUsers).anyMatch(user -> user.username().equals("username"))
+                () -> assertThat(allUsers).anyMatch(user -> user.username().equals("username"))
         );
 
-        //Step 15: Admin sends a DELETE request to /api/users/{userId}, where {userId} is the user identifier, and the system deletes that user from the system.
+        //Step 18: Admin sends a DELETE request to /api/users/{userId}, where {userId} is the user identifier, and the system deletes that user from the system.
         // given
         String userId = registrationResultDto.id();
+
         // when
         ResultActions performDeleteUser = mockMvc.perform(delete(usersUrl + "/" + userId)
                 .header("Authorization", "Bearer " + adminToken)
@@ -309,17 +388,6 @@ public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegration
         // then
         performGetUser.andExpect(status().isNotFound());
 
-        //Step 16: User sends a GET request to /api/educational-content/{contentId}, where {contentId} is the identifier of the educational content, and the system returns the details of that educational content.
-        //Step 17: User sends a GET request to /api/educational-content/{contentId}/comments, where {contentId} is the identifier of the educational content, and the system returns a list of comments for that educational content.
-        //Step 18: User sends a POST request to /api/educational-content/{contentId}/comments, where {contentId} is the identifier of the educational content, along with the content of the comment, and the system adds a new comment to that educational content.
-        //Step 19: User sends a GET request to /api/tests, and the system returns a list of all available tests.
-        //Step 20: User sends a GET request to /api/tests/{testId}/questions, where {testId} is the test identifier, and the system returns a list of questions for that test.
-        //Step 21: User sends a GET request to /api/tests/{testId}/questions/{questionId}, where {testId} is the test identifier and {questionId} is the question identifier, and the system returns the details of that question.
-        //Step 22: User sends a POST request to /api/tests/{testId}/questions/{questionId}/answer, where {testId} is the test identifier and {questionId} is the question identifier, along with the answer to that question, and the system saves the user's answer.
-        //Step 23: User sends a DELETE request to /api/tests/{testId}/questions/{questionId}/answer, where {testId} is the test identifier and {questionId} is the question identifier, and the system deletes the user's answer to that question.
-        //Step 24: Admin sends a POST request to /api/educational-content/{contentId}/approve, where {contentId} is the identifier of the educational content, and the system approves that educational content.
-        //Step 25: Admin sends a POST request to /api/educational-content/{contentId}/reject, where {contentId} is the identifier of the educational content, and the system rejects that educational content.
-        //Step 26: User sends a POST request to /api/educational-content/{contentId}/like, where {contentId} is the identifier of the educational content, and the system adds a like to that educational content.
-        //Step 27: User sends a POST request to /api/educational-content/{contentId}/unlike, where {contentId} is the identifier of the educational content, and the system removes a like from that educational content.
+
     }
 }

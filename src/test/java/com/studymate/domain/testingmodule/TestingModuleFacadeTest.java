@@ -1,5 +1,6 @@
 package com.studymate.domain.testingmodule;
 
+import com.studymate.domain.progresstracking.ProgressTrackingFacade;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Test;
 
@@ -8,6 +9,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.Mockito.mock;
 
 
 class TestingModuleFacadeTest {
