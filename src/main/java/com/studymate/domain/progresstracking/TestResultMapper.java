@@ -7,6 +7,7 @@ public class TestResultMapper {
         return TestScore.builder()
                 .testId(testResult.testId())
                 .score(testResult.score())
+                .timestamp(testResult.timestamp())
                 .build();
 
 

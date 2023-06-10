@@ -1,5 +1,6 @@
 package com.studymate.infrastructure.testingmodule.controller;
 
+import com.studymate.domain.progresstracking.ProgressTrackingFacade;
 import com.studymate.domain.testingmodule.Exam;
 import com.studymate.domain.testingmodule.Question;
 import com.studymate.domain.testingmodule.TestResult;
@@ -22,6 +23,7 @@ import java.util.List;
 public class TestingModuleRestController {
     private final TestingModuleFacade testingModuleFacade;
     private final UserManagementFacade userManagementFacade;
+    private final ProgressTrackingFacade progressTrackingFacade;
 
 
     @PostMapping
@@ -47,6 +49,7 @@ public class TestingModuleRestController {
                 .answers(submissionData.answers())
                 .build();
         TestResult testResult = testingModuleFacade.solveTest(testId, submissionDataWithUserId);
+        progressTrackingFacade.addTestScoreToProgress(testResult);
         return ResponseEntity.ok(testResult);
     }
 

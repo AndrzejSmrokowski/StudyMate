@@ -47,4 +47,8 @@ public class ProgressTrackingFacade {
                 .build();
         return progressTrackingService.updateProgress(progress);
     }
+
+    public Progress getProgressByUserId(String userId) {
+        return progressTrackingService.getProgressByUserId(userId);
+    }
 }

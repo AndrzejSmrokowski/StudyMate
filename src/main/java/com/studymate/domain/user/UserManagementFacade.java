@@ -1,5 +1,9 @@
 package com.studymate.domain.user;
 
+import com.studymate.domain.progresstracking.Progress;
+import com.studymate.domain.progresstracking.ProgressNotFoundException;
+import com.studymate.domain.progresstracking.ProgressRepository;
+import com.studymate.domain.progresstracking.ProgressTrackingFacade;
 import com.studymate.domain.user.dto.RegisterUserDto;
 import com.studymate.domain.user.dto.RegistrationResultDto;
 import com.studymate.domain.user.dto.UserData;
@@ -16,6 +20,8 @@ import java.util.Optional;
 public class UserManagementFacade {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ProgressTrackingFacade progressTrackingFacade;
+    private final ProgressRepository progressRepository;
 
 
     public User findUserByUsername(String username) {
@@ -36,6 +42,7 @@ public class UserManagementFacade {
                 .authorities(userAuthorities)
                 .build();
         User registeredUser = userRepository.save(newUser);
+        progressTrackingFacade.initializeProgress(registeredUser.userId());
         return new RegistrationResultDto(registeredUser.userId(), true, registeredUser.username());
 
     }
@@ -51,9 +58,12 @@ public class UserManagementFacade {
     public UserData getUserData(String userId) {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
+        Progress progress = progressRepository.getProgressByUserId(userId)
+                .orElseThrow(() -> new ProgressNotFoundException(userId));
         return UserData.builder()
                 .username(user.username())
                 .authorities(user.getAuthorities())
+                .progress(progress)
                 .build();
 
     }
