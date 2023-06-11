@@ -1,6 +1,5 @@
 package com.studymate.domain.admin;
 
-import com.studymate.domain.educationalmaterial.EducationalMaterialFacade;
 import com.studymate.domain.user.SimpleGrantedAuthority;
 import com.studymate.domain.user.User;
 import com.studymate.domain.user.UserManagementFacade;
@@ -16,7 +15,6 @@ import java.util.List;
 @Component
 public class AdministrationFacade {
     private final UserRepository userRepository;
-    private final EducationalMaterialFacade educationalMaterialFacade;
     private final UserManagementFacade userManagementFacade;
 
     public List<User> getUsers() {
@@ -27,13 +25,6 @@ public class AdministrationFacade {
         userRepository.deleteById(userId);
     }
 
-    public void approveEducationalMaterial(String materialId) {
-        educationalMaterialFacade.approveMaterial(materialId);
-    }
-
-    public void rejectEducationalMaterial(String materialId) {
-        educationalMaterialFacade.rejectMaterial(materialId);
-    }
 
     @PostConstruct
     public void createAdmin() {

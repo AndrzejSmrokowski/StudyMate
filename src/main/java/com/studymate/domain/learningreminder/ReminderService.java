@@ -15,8 +15,13 @@ public class ReminderService {
     }
 
     public List<Reminder> getAllRemindersByUserId(String userId) {
-        return reminderRepository.findAllByUserId(userId);
+        List<Reminder> reminders = reminderRepository.findAllByUserId(userId);
+        if (reminders.isEmpty()) {
+            throw new NoRemindersFoundException(userId);
+        }
+        return reminders;
     }
+
 
     public Reminder createReminder(ReminderData reminderData) {
         Reminder reminder = Reminder.builder()
@@ -27,5 +32,15 @@ public class ReminderService {
                 .build();
 
         return reminderRepository.save(reminder);
+    }
+
+    public void deleteReminder(String reminderId) {
+        reminderRepository.findById(reminderId)
+                .orElseThrow(() -> new ReminderNotFoundException(reminderId));
+        reminderRepository.deleteById(reminderId);
+    }
+
+    public Reminder updateReminder(Reminder sendedReminder) {
+        return reminderRepository.save(sendedReminder);
     }
 }

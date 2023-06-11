@@ -29,3 +29,10 @@ auth:
     expirationDays: 30
     secret: ${JWT_SECRET}
     issuer: study-mate-backend
+scheduling:
+  enabled: true
+reminder:
+  scheduler:
+    send:
+      delay:
+        PT30M

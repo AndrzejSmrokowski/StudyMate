@@ -19,14 +19,14 @@ private final UserManagementFacade userManagementFacade = mock(UserManagementFac
     private final LearningReminderFacade learningReminderFacade = new LearningReminderFacade(new ReminderService(new InMemoryReminderRepository()), emailSender, userManagementFacade);
 
     @Test
-    void shouldGetDueRemindersForCurrentUser() {
+    void shouldGetRemindersForCurrentUser() {
         // given
         String userId = "user123";
         ReminderData reminderData = new ReminderData(userId,"Test Message", LocalDateTime.now());
         learningReminderFacade.createReminder(reminderData);
 
         // when
-        var reminders = learningReminderFacade.getDueRemindersForCurrentUser(userId);
+        var reminders = learningReminderFacade.getRemindersForCurrentUser(userId);
 
         // then
         assertThat(reminders).isNotEmpty();
@@ -72,7 +72,7 @@ private final UserManagementFacade userManagementFacade = mock(UserManagementFac
         String userId = "user123";
 
         //when
-        Throwable thrown = catchThrowable(() -> learningReminderFacade.getDueRemindersForCurrentUser(userId));
+        Throwable thrown = catchThrowable(() -> learningReminderFacade.getRemindersForCurrentUser(userId));
 
         // then
         AssertionsForClassTypes.assertThat(thrown)
