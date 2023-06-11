@@ -10,7 +10,8 @@ import java.util.Collection;
 public record UserData(
         String username,
         Progress progress,
-        Collection<SimpleGrantedAuthority> authorities
+        Collection<SimpleGrantedAuthority> authorities,
+        String userEmail
 ) {
 
 }

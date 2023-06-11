@@ -1,0 +1,7 @@
+scheduling:
+  enabled: false
+reminder:
+  scheduler:
+    send:
+      delay:
+        PT1S

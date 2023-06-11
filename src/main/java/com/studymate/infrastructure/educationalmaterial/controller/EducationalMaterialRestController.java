@@ -13,8 +13,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
+import java.net.URI;
 
 @RestController
 @RequestMapping("/api/educational-content")
@@ -34,7 +36,14 @@ public class EducationalMaterialRestController {
     @PostMapping
     public ResponseEntity<EducationalMaterial> createEducationalMaterial(@RequestBody EducationalMaterialData materialData) {
         EducationalMaterial educationalMaterial = educationalMaterialFacade.createEducationalMaterial(materialData);
-        return ResponseEntity.ok(educationalMaterial);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(educationalMaterial.id())
+                .toUri();
+
+        return ResponseEntity.created(location).body(educationalMaterial);
 
     }
 
@@ -68,7 +77,7 @@ public class EducationalMaterialRestController {
         return ResponseEntity.ok(comments);
     }
 
-    @PostMapping("/{id}/likes")
+    @PutMapping("/{id}/likes")
     public ResponseEntity<Integer> likeMaterial(@PathVariable String id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserName = authentication.getName();

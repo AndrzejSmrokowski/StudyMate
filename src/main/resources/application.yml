@@ -5,7 +5,17 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ANT_PATH_MATCHER
-
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: my.gmail@gmail.com
+    password: secret
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 studymate:
   http:
     client:
@@ -18,4 +28,11 @@ auth:
   jwt:
     expirationDays: 30
     secret: ${JWT_SECRET}
-    issuer: job-offers-backend
+    issuer: study-mate-backend
+scheduling:
+  enabled: true
+reminder:
+  scheduler:
+    send:
+      delay:
+        PT30M

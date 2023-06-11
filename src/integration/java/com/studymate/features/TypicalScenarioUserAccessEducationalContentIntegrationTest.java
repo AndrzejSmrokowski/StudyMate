@@ -222,27 +222,27 @@ public class TypicalScenarioUserAccessEducationalContentIntegrationTest extends 
         assertThat(postedComment.text()).isEqualTo(commentText);
         assertThat(postedComment.author()).isEqualTo("someUser");
 
-        // step 13: user makes a POST to /educational-content/1/likes and system increase likes count by 1, and returns OK(200)
+        // step 13: user makes a Put to /educational-content/1/likes and system increase likes count by 1, and returns OK(200)
         // given & when
-        ResultActions performPostLikes = mockMvc.perform(post("/api/educational-content/1/likes")
+        ResultActions performPutLikes = mockMvc.perform(put("/api/educational-content/1/likes")
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON_VALUE));
 
         // then
-        MvcResult performPostLikesMvcResult = performPostLikes.andExpect(status().isOk()).andReturn();
-        String jsonWithLikesCount = performPostLikesMvcResult.getResponse().getContentAsString();
+        MvcResult performPutLikesMvcResult = performPutLikes.andExpect(status().isOk()).andReturn();
+        String jsonWithLikesCount = performPutLikesMvcResult.getResponse().getContentAsString();
         Integer likesCount = objectMapper.readValue(jsonWithLikesCount, new TypeReference<>() {
         });
 
         assertThat(likesCount).isEqualTo(11);
 
-        // step 14: user makes a POST to /educational-content/1/likes and system don't increase likes count, and returns CONFLICT(409) because user already liked
+        // step 14: user makes a PUT to /educational-content/1/likes and system don't increase likes count, and returns CONFLICT(409) because user already liked
         // given && when
-        ResultActions performPostLikesAgain = mockMvc.perform(post("/api/educational-content/1/likes")
+        ResultActions performPutLikesAgain = mockMvc.perform(put("/api/educational-content/1/likes")
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON_VALUE));
         // then
-        performPostLikesAgain.andExpect(status().isConflict())
+        performPutLikesAgain.andExpect(status().isConflict())
                 .andExpect(content().json("""
                         {
                         "message":  "User with username: someUser already liked EducationalMaterial",

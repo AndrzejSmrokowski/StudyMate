@@ -23,6 +23,7 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.utility.DockerImageName;
 
+
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -131,8 +132,17 @@ public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegration
         );
 
         // then
-        MvcResult PostEducationalContentMvcResult = performPostEducationalContent.andExpect(status().isOk()).andReturn();
-        String jsonWithEducationalMaterial = PostEducationalContentMvcResult.getResponse().getContentAsString();
+        MvcResult PostEducationalContentMvcResult = performPostEducationalContent.andExpect(status().isCreated()).andReturn();
+
+        // Extract the Location header which contains the URI of the created resource
+        String locationHeader = PostEducationalContentMvcResult.getResponse().getHeader("Location");
+
+        // Send a GET request to the URI of the created resource to retrieve it
+        MvcResult getCreatedResourceMvcResult = mockMvc.perform(get(locationHeader)
+                .header("Authorization", "Bearer " + token)
+        ).andExpect(status().isOk()).andReturn();
+
+        String jsonWithEducationalMaterial = getCreatedResourceMvcResult.getResponse().getContentAsString();
         EducationalMaterial educationalMaterial = objectMapper.readValue(jsonWithEducationalMaterial, new TypeReference<>() {
         });
 
@@ -141,6 +151,7 @@ public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegration
                 () -> assertThat(educationalMaterial.description()).isEqualTo("Krotkie wprowadzenie do podstaw fizyki kwantowej"),
                 () -> assertThat(educationalMaterial.comments()).isNotNull()
         );
+
 
         //Step 6: User sends a PUT request to /api/educational-content/{contentId}, where {contentId} is the identifier of the existing content, along with the updated data (e.g., title, description, content), and the system updates the educational content.
         // given & when
