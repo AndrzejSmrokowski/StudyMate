@@ -24,6 +24,8 @@
         <assertj-core.version>3.19.0</assertj-core.version>
         <wiremock-jre8.version>2.35.0</wiremock-jre8.version>
         <java-jwt.version>4.0.0</java-jwt.version>
+        <springfox-boot-starter.version>3.0.0</springfox-boot-starter.version>
+
 
     </properties>
     <dependencies>
@@ -102,6 +104,12 @@
             <artifactId>wiremock-jre8-standalone</artifactId>
             <version>${wiremock-jre8.version}</version>
             <scope>test</scope>
+        </dependency>
+        <!--  SWAGGER http://localhost:8080/swagger-ui/index.html#/ -->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-boot-starter</artifactId>
+            <version>${springfox-boot-starter.version}</version>
         </dependency>
     </dependencies>
     <build>
