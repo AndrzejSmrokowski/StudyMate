@@ -1,6 +1,7 @@
 package com.studymate.infrastructure.admin;
 
 import com.studymate.domain.admin.AdministrationFacade;
+import com.studymate.domain.educationalmaterial.EducationalMaterialFacade;
 import com.studymate.domain.user.User;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import java.util.List;
 public class AdminController {
 
     private final AdministrationFacade administrationFacade;
+    private final EducationalMaterialFacade educationalMaterialFacade;
 
     @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
@@ -32,14 +34,14 @@ public class AdminController {
     @PostMapping("/educationalMaterials/{materialId}/approve")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> approveEducationalMaterial(@PathVariable String materialId) {
-        administrationFacade.approveEducationalMaterial(materialId);
+        educationalMaterialFacade.approveMaterial(materialId);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/educationalMaterials/{materialId}/reject")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> rejectEducationalMaterial(@PathVariable String materialId) {
-        administrationFacade.rejectEducationalMaterial(materialId);
+        educationalMaterialFacade.rejectMaterial(materialId);
         return ResponseEntity.noContent().build();
     }
 }

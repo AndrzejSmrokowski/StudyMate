@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      uri: mongodb://username:password@localhost:27017/studymate
+      uri: mongodb://root:example@localhost:27017/studymate
   mvc:
     pathmatch:
       matching-strategy: ANT_PATH_MATCHER
