@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.List;
 
@@ -33,7 +34,7 @@ private final UserManagementFacade userManagementFacade;
     }
 
     @PostMapping
-    public ResponseEntity<Reminder> createReminder(@RequestBody CreateReminderRequest request) {
+    public ResponseEntity<Reminder> createReminder(@RequestBody @Valid CreateReminderRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserName = authentication.getName();
         User user = userManagementFacade.findUserByUsername(currentUserName);

@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -27,7 +28,7 @@ public class TestingModuleRestController {
 
 
     @PostMapping
-    public ResponseEntity<Exam> createTest(@RequestBody TestData testData) {
+    public ResponseEntity<Exam> createTest(@RequestBody @Valid TestData testData) {
         Exam exam = testingModuleFacade.createTest(testData);
         return ResponseEntity.ok(exam);
     }
@@ -38,7 +39,7 @@ public class TestingModuleRestController {
         return ResponseEntity.ok(exam);
     }
     @PostMapping ("/{testId}/submit")
-    public ResponseEntity<TestResult> solveTest(@PathVariable String testId, @RequestBody TestSubmissionData submissionData) {
+    public ResponseEntity<TestResult> solveTest(@PathVariable String testId, @RequestBody @Valid TestSubmissionData submissionData) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUserName = authentication.getName();
         User currentUser = userManagementFacade.findUserByUsername(currentUserName);
