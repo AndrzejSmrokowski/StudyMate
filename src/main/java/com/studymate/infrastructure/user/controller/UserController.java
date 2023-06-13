@@ -16,6 +16,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/api/users")
 @AllArgsConstructor
@@ -27,7 +29,7 @@ public class UserController {
     private final JwtBlacklistRepository jwtBlacklistRepository;
 
     @PostMapping("/register")
-    public ResponseEntity<RegistrationResultDto> registerUser(@RequestBody RegisterUserDto registerUserDto) {
+    public ResponseEntity<RegistrationResultDto> registerUser(@RequestBody @Valid RegisterUserDto registerUserDto) {
         RegistrationResultDto registrationResult = userManagementFacade.registerUser(registerUserDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(registrationResult);
 
