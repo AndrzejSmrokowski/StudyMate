@@ -15,6 +15,7 @@ import com.studymate.domain.user.dto.UserData;
 import com.studymate.infrastructure.user.controller.dto.JwtResponseDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MvcResult;
@@ -31,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+@ActiveProfiles("redis-test")
 public class TypicalScenarioUserSolveTestIntegrationTest extends BaseIntegrationTest implements DataProviderForIntegrationTests {
 
     @Container

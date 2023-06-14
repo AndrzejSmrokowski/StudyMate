@@ -1,7 +1,14 @@
 scheduling:
   enabled: false
+
 reminder:
   scheduler:
     send:
       delay:
         PT1S
+
+spring:
+  cache:
+    type: none
+    redis:
+      time-to-live: PT10S

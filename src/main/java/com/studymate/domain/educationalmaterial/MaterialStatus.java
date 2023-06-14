@@ -1,5 +1,7 @@
 package com.studymate.domain.educationalmaterial;
 
-public enum MaterialStatus {
+import java.io.Serializable;
+
+public enum MaterialStatus implements Serializable {
     REJECTED, APPROVED, PENDING, ARCHIVED
 }

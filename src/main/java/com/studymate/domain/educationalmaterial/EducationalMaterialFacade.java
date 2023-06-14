@@ -3,6 +3,8 @@ package com.studymate.domain.educationalmaterial;
 import com.studymate.domain.educationalmaterial.dto.CommentData;
 import com.studymate.domain.educationalmaterial.dto.EducationalMaterialData;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
+
 
 import java.util.List;
 @AllArgsConstructor
@@ -11,6 +13,7 @@ public class EducationalMaterialFacade {
     private final EducationalMaterialService educationalMaterialService;
     private final MaterialLikeManager materialLikeManager;
 
+    @Cacheable(cacheNames = "educational-materials")
     public List<EducationalMaterial> getEducationalMaterials() {
         return educationalMaterialService.getEducationalMaterials();
     }
