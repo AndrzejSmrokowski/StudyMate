@@ -112,5 +112,9 @@ StudyMate provides a variety of endpoints for different functionalities. Here ar
 - **Delete Material**: `DELETE /api/educational-content/{id}`
 - **Review Material**: `POST /api/educational-content/{id}/review`
 
+### Progress Tracking Controller
+
+- **Get Progress**: `GET /api/progress`
+
 
 You can interact with these endpoints using tools like curl or Postman. For more detailed information about the API, visit the Swagger UI at `http://localhost:8080/swagger-ui/index.html#/`.
