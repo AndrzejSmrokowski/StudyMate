@@ -7,6 +7,9 @@ import com.studymate.domain.progresstracking.ProgressTrackingFacade;
 import com.studymate.domain.user.dto.RegisterUserDto;
 import com.studymate.domain.user.dto.RegistrationResultDto;
 import com.studymate.domain.user.dto.UserData;
+import com.studymate.domain.user.exception.UserAlreadyExistsException;
+import com.studymate.domain.user.exception.UserNotFoundException;
+import com.studymate.domain.user.verification.EmailVerificationService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,7 +25,7 @@ public class UserManagementFacade {
     private final PasswordEncoder passwordEncoder;
     private final ProgressTrackingFacade progressTrackingFacade;
     private final ProgressRepository progressRepository;
-
+    private final EmailVerificationService emailVerificationService;
 
     public User findUserByUsername(String username) {
         return userRepository.findByUsername(username).orElseThrow(() -> new BadCredentialsException("User with the given username not found: " + username));
@@ -40,6 +43,7 @@ public class UserManagementFacade {
                 .username(registerUserDto.username())
                 .password(encodedPassword)
                 .authorities(userAuthorities)
+                .emailVerified(false)
                 .build();
         User registeredUser = userRepository.save(newUser);
         progressTrackingFacade.initializeProgress(registeredUser.userId());
@@ -67,4 +71,19 @@ public class UserManagementFacade {
                 .build();
 
     }
+
+    public boolean verifyEmail(String token) {
+        return emailVerificationService.verifyEmail(token);
+    }
+
+    public void addEmailToUser(String email, String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BadCredentialsException("User with the given username not found: " + username));
+        User userWithEmail = user.toBuilder().email(email).build();
+        userRepository.save(userWithEmail);
+        emailVerificationService.sendVerificationEmail(userWithEmail);
+    }
+
+
+
 }

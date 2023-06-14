@@ -1,6 +1,6 @@
 package com.studymate.infrastructure.user.controller.error;
 
-import com.studymate.domain.user.UserNotFoundException;
+import com.studymate.domain.user.exception.UserNotFoundException;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;

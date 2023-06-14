@@ -17,6 +17,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 
 @RestController
 @RequestMapping("/api/users")
@@ -58,5 +60,19 @@ public class UserController {
     public ResponseEntity<UserData> getUserData(@PathVariable String userId) {
         UserData userData = userManagementFacade.getUserData(userId);
         return ResponseEntity.ok(userData);
+    }
+
+    @PutMapping("/add-email")
+    public ResponseEntity<Void> addEmailToUser(@RequestBody @Email @NotBlank String email) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUserName = authentication.getName();
+        userManagementFacade.addEmailToUser(email, currentUserName);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<Boolean> verifyEmail(@RequestParam String token) {
+        boolean isVerified = userManagementFacade.verifyEmail(token);
+        return ResponseEntity.ok(isVerified);
     }
 }

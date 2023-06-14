@@ -31,6 +31,11 @@ public class InMemoryUserRepository implements UserRepository {
         return Optional.empty();
     }
 
+    @Override
+    public Optional<User> findByEmailVerificationTokenToken(String token) {
+        return Optional.empty();
+    }
+
 
     @Override
     public <S extends User> S save(S entity) {

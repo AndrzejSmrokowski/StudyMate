@@ -4,6 +4,8 @@ import com.studymate.domain.progresstracking.ProgressRepository;
 import com.studymate.domain.progresstracking.ProgressTrackingFacade;
 import com.studymate.domain.user.dto.RegisterUserDto;
 import com.studymate.domain.user.dto.RegistrationResultDto;
+import com.studymate.domain.user.exception.UserAlreadyExistsException;
+import com.studymate.domain.user.verification.EmailVerificationService;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -17,7 +19,9 @@ import static org.mockito.Mockito.mock;
 class UserManagementFacadeTest {
     private final ProgressTrackingFacade progressTrackingFacade = mock(ProgressTrackingFacade.class);
     private final ProgressRepository progressRepository = mock(ProgressRepository.class);
-    private final UserManagementFacade userManagementFacade = new UserManagementFacade(new InMemoryUserRepository(),new BCryptPasswordEncoder(), progressTrackingFacade, progressRepository);
+    private final EmailVerificationService emailVerificationService = mock(EmailVerificationService.class);
+    private final UserManagementFacade userManagementFacade = new UserManagementFacade(new InMemoryUserRepository(),
+            new BCryptPasswordEncoder(), progressTrackingFacade, progressRepository, emailVerificationService);
 
     @Test
     void shouldRegisterUser() {

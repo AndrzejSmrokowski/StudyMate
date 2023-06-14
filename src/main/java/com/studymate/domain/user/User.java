@@ -1,5 +1,6 @@
 package com.studymate.domain.user;
 
+import com.studymate.domain.user.verification.EmailVerificationToken;
 import lombok.Builder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -9,12 +10,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
 @Document
-@Builder
+@Builder(toBuilder = true)
 public record User(
         @Id String userId,
         @Indexed(unique = true) String username,
         String password,
-        Collection<SimpleGrantedAuthority> authorities
+        Collection<SimpleGrantedAuthority> authorities,
+        EmailVerificationToken emailVerificationToken,
+        String email,
+        boolean emailVerified
 
 ) implements UserDetails {
     @Override
